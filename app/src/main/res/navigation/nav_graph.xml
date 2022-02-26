@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/CategoryFragment">
+
+    <fragment
+        android:id="@+id/CategoryFragment"
+        android:name="org.joyfmi.dreams.CategoryFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/category_fragment">
+        <action
+            android:id="@+id/action_categoryFragment_to_symbolFragment"
+            app:destination="@id/SymbolFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/SymbolFragment"
+    android:name="org.joyfmi.dreams.SymbolFragment"
+    android:label="Symbols"
+    tools:layout="@layout/symbol_fragment">
+    <argument
+        android:name="categoryId"
+        app:argType="integer" />
+    </fragment>
+</navigation>
