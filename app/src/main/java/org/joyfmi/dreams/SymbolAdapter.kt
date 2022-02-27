@@ -1,14 +1,13 @@
 package org.joyfmi.dreams
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.joyfmi.dreams.database.category.Category
 import org.joyfmi.dreams.database.symbol.Symbol
 import org.joyfmi.dreams.databinding.SymbolItemBinding
-import org.joyfmi.dreams.databinding.CategoryItemBinding
 
 class SymbolAdapter(
         private val onItemClicked: (Symbol) -> Unit
@@ -27,6 +26,7 @@ class SymbolAdapter(
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SymbolAdapter.SymbolViewHolder {
+        Log.d("SymbolAdapter", "Creating")
         val viewHolder = SymbolAdapter.SymbolViewHolder(
             SymbolItemBinding.inflate(
                 LayoutInflater.from(parent.context),
@@ -42,6 +42,7 @@ class SymbolAdapter(
     }
 
     override fun onBindViewHolder(holder: SymbolViewHolder, position: Int) {
+        Log.d("SymbolFragment", "Bind ViewHolder")
         holder.bind(getItem(position))
     }
 
@@ -49,6 +50,7 @@ class SymbolAdapter(
         private var binding: SymbolItemBinding
     ): RecyclerView.ViewHolder(binding.root) {
         fun bind(symbol: Symbol) {
+            Log.d("SymbolViewHolder", "Assigning Values")
             binding.symbolTextView.text = symbol.name
         }
     }

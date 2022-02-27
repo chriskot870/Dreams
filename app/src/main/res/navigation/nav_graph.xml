@@ -17,11 +17,22 @@
     </fragment>
     <fragment
         android:id="@+id/SymbolFragment"
-    android:name="org.joyfmi.dreams.SymbolFragment"
-    android:label="Symbols"
-    tools:layout="@layout/symbol_fragment">
-    <argument
-        android:name="categoryId"
-        app:argType="integer" />
+        android:name="org.joyfmi.dreams.SymbolFragment"
+        android:label="Symbols"
+        tools:layout="@layout/symbol_fragment">
+        <argument
+            android:name="categoryId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_symbolFragment_to_meaningFragment"
+            app:destination="@id/MeaningFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/MeaningFragment"
+        android:name="org.joyfmi.dreams.MeaningFragment"
+        android:label="MeaningFragment" >
+        <argument
+            android:name="symbolId"
+            app:argType="integer" />
     </fragment>
 </navigation>

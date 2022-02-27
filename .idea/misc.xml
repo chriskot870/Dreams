@@ -6,6 +6,8 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.14739583333333334" />
         <entry key="app/src/main/res/layout/category_fragment.xml" value="0.14739583333333334" />
         <entry key="app/src/main/res/layout/category_item.xml" value="0.14739583333333334" />
+        <entry key="app/src/main/res/layout/meaning_fragment.xml" value="0.24365942028985507" />
+        <entry key="app/src/main/res/layout/meaning_item.xml" value="0.24365942028985507" />
         <entry key="app/src/main/res/layout/symbol_fragment.xml" value="0.14739583333333334" />
         <entry key="app/src/main/res/layout/symbol_item.xml" value="0.14739583333333334" />
       </map>
