@@ -26,7 +26,7 @@ class CategoryFragment: Fragment() {
 
     private val viewModel: CategoryViewModel by activityViewModels {
         CategoryViewModelFactory(
-            (activity?.application as DreamApplication).database.categoryDao()
+            (activity?.application as DreamApplication).repository
         )
     }
 
@@ -52,7 +52,7 @@ class CategoryFragment: Fragment() {
         })
         recyclerView.adapter = categoryAdapter
         lifecycle.coroutineScope.launch {
-            viewModel.allCategories().collect() {
+            viewModel.getallCategories()?.collect() {
                 categoryAdapter.submitList(it)
             }
         }

@@ -1,23 +1,24 @@
 package org.joyfmi.dreams.viewmodels
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import org.joyfmi.dreams.database.symbol.Symbol
-import org.joyfmi.dreams.database.symbol.SymbolDao
 import kotlinx.coroutines.flow.Flow
+import org.joyfmi.dreams.repository.DreamRepository
+import org.joyfmi.dreams.repository.Symbol
 
-class SymbolViewModel(private val symbolDao: SymbolDao): ViewModel() {
+class SymbolViewModel(private val repository: DreamRepository): ViewModel() {
 
-    fun symbolsByCategoryId(categoryId: Int): Flow<List<Symbol>> = symbolDao.getSymbolsByCategoryId(categoryId)
+    fun symbolsByCategoryId(categoryId: Int): Flow<List<Symbol>>? = repository.symbolsByCategoryId(categoryId)
 }
 
 class SymbolViewModelFactory(
-    private val symbolDao: SymbolDao
+    private val repository: DreamRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SymbolViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SymbolViewModel(symbolDao) as T
+            return SymbolViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

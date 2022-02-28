@@ -27,7 +27,7 @@ class SymbolFragment: Fragment() {
 
     private val viewModel: SymbolViewModel by activityViewModels {
         SymbolViewModelFactory(
-            (activity?.application as DreamApplication).database.symbolDao()
+            (activity?.application as DreamApplication).repository
         )
     }
     private var categoryId: Int = 0
@@ -64,7 +64,7 @@ class SymbolFragment: Fragment() {
         })
         recyclerView.adapter = symbolAdapter
         lifecycle.coroutineScope.launch {
-            viewModel.symbolsByCategoryId(categoryId).collect() {
+            viewModel.symbolsByCategoryId(categoryId)?.collect() {
                 symbolAdapter.submitList(it)
             }
         }

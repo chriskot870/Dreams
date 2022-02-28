@@ -26,7 +26,7 @@ class MeaningFragment: Fragment() {
 
     private val viewModel: MeaningViewModel by activityViewModels {
         MeaningViewModelFactory(
-            (activity?.application as DreamApplication).database.meaningDao()
+            (activity?.application as DreamApplication).repository
         )
     }
     private var symbolId: Int = 0
@@ -58,7 +58,7 @@ class MeaningFragment: Fragment() {
         val meaningAdapter = MeaningAdapter()
         recyclerView.adapter = meaningAdapter
         lifecycle.coroutineScope.launch {
-            viewModel.getMeaningBySymbolId(symbolId).collect() {
+            viewModel.getMeaningsBySymbol("Animals")?.collect() {
                 meaningAdapter.submitList(it)
             }
         }

@@ -1,12 +1,11 @@
 package org.joyfmi.dreams
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import org.joyfmi.dreams.database.category.Category
+import org.joyfmi.dreams.repository.Category
 import org.joyfmi.dreams.databinding.CategoryItemBinding
 
 class CategoryListAdapter(

@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.joyfmi.dreams.database.symbol.Symbol
 import org.joyfmi.dreams.databinding.SymbolItemBinding
+import org.joyfmi.dreams.repository.Symbol
 
 class SymbolAdapter(
         private val onItemClicked: (Symbol) -> Unit

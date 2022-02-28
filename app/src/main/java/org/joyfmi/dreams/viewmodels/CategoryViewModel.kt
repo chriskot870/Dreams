@@ -1,23 +1,25 @@
 package org.joyfmi.dreams.viewmodels
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import org.joyfmi.dreams.database.category.Category
-import org.joyfmi.dreams.database.category.CategoryDao
 import kotlinx.coroutines.flow.Flow
+import org.joyfmi.dreams.repository.DreamRepository
+import org.joyfmi.dreams.repository.Category
 
-class CategoryViewModel(private val categoryDao: CategoryDao): ViewModel() {
+class CategoryViewModel(private val repository:DreamRepository): ViewModel() {
 
-    fun allCategories(): Flow<List<Category>> = categoryDao.getAllCategories()
+    fun getallCategories(): Flow<List<Category>>? = repository.getAllCategories()
+
 }
 
 class CategoryViewModelFactory(
-    private val categoryDao: CategoryDao
+    private val repository: DreamRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CategoryViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CategoryViewModel(categoryDao) as T
+            return CategoryViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
