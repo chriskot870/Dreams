@@ -1,4 +1,4 @@
-package org.joyfmi.dreams
+package org.joyfmi.dreams.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

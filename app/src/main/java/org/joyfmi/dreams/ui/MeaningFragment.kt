@@ -1,4 +1,4 @@
-package org.joyfmi.dreams
+package org.joyfmi.dreams.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +12,7 @@ import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.databinding.MeaningFragmentBinding
 import org.joyfmi.dreams.viewmodels.MeaningViewModel
 import org.joyfmi.dreams.viewmodels.MeaningViewModelFactory

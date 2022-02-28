@@ -1,4 +1,4 @@
-package org.joyfmi.dreams
+package org.joyfmi.dreams.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,6 +15,7 @@ import org.joyfmi.dreams.viewmodels.CategoryViewModel
 import org.joyfmi.dreams.viewmodels.CategoryViewModelFactory
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.joyfmi.dreams.DreamApplication
 
 class CategoryFragment: Fragment() {
 

@@ -1,4 +1,4 @@
-package org.joyfmi.dreams
+package org.joyfmi.dreams.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +16,7 @@ import org.joyfmi.dreams.databinding.SymbolFragmentBinding
 import org.joyfmi.dreams.viewmodels.SymbolViewModel
 import org.joyfmi.dreams.viewmodels.SymbolViewModelFactory
 import kotlinx.coroutines.flow.collect
+import org.joyfmi.dreams.DreamApplication
 
 class SymbolFragment: Fragment() {
 

@@ -1,4 +1,4 @@
-package org.joyfmi.dreams
+package org.joyfmi.dreams.ui
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -23,8 +23,8 @@ class MeaningAdapter(): ListAdapter<Meaning, MeaningAdapter.MeaningViewHolder>(D
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MeaningAdapter.MeaningViewHolder {
-        val viewHolder = MeaningAdapter.MeaningViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MeaningViewHolder {
+        val viewHolder = MeaningViewHolder(
             MeaningItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
@@ -36,7 +36,7 @@ class MeaningAdapter(): ListAdapter<Meaning, MeaningAdapter.MeaningViewHolder>(D
         return viewHolder
     }
 
-    override fun onBindViewHolder(holder: MeaningAdapter.MeaningViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MeaningViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 

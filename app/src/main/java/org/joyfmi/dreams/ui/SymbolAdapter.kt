@@ -1,4 +1,4 @@
-package org.joyfmi.dreams
+package org.joyfmi.dreams.ui
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,9 +25,9 @@ class SymbolAdapter(
             }
         }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SymbolAdapter.SymbolViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SymbolViewHolder {
         Log.d("SymbolAdapter", "Creating")
-        val viewHolder = SymbolAdapter.SymbolViewHolder(
+        val viewHolder = SymbolViewHolder(
             SymbolItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,

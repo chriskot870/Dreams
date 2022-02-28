@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/CategoryFragment"
-        android:name="org.joyfmi.dreams.CategoryFragment"
+        android:name="org.joyfmi.dreams.ui.CategoryFragment"
         android:label="@string/app_name"
         tools:layout="@layout/category_fragment">
         <action
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/SymbolFragment"
-        android:name="org.joyfmi.dreams.SymbolFragment"
+        android:name="org.joyfmi.dreams.ui.SymbolFragment"
         android:label="Symbols"
         tools:layout="@layout/symbol_fragment">
         <argument
@@ -29,7 +29,7 @@
     </fragment>
     <fragment
         android:id="@+id/MeaningFragment"
-        android:name="org.joyfmi.dreams.MeaningFragment"
+        android:name="org.joyfmi.dreams.ui.MeaningFragment"
         android:label="MeaningFragment" >
         <argument
             android:name="symbolId"
