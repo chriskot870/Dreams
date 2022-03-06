@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
 /*
  * Define the data Symbol class that matches the Symbol Table of the database
  */
-@Entity(indices = [Index(value = ["Name"], unique = true)])
+@Entity(tableName = "Symbol", indices = [Index(value = ["Name"], unique = true)])
 data class CommonSymbol (
     /*
      * The definitions and types here should match the database Schema for the Symbol table

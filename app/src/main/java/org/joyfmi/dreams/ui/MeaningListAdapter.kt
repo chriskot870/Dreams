@@ -6,15 +6,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import org.joyfmi.dreams.repository.Meaning
+import org.joyfmi.dreams.repository.MeaningIdentity
 import org.joyfmi.dreams.databinding.MeaningItemBinding
+import org.joyfmi.dreams.repository.Meaning
 
-class MeaningAdapter(): ListAdapter<Meaning, MeaningAdapter.MeaningViewHolder>(DiffCallback)  {
+class MeaningListAdapter(): ListAdapter<Meaning, MeaningListAdapter.MeaningViewHolder>(DiffCallback)  {
 
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<Meaning>() {
             override fun areItemsTheSame(oldItem: Meaning, newItem: Meaning): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem.identity.id == newItem.identity.id
             }
 
             override fun areContentsTheSame(oldItem: Meaning, newItem: Meaning): Boolean {

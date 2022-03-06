@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 /*
  * Define the data Meaning class that matches the Meaning Table of the database
  */
-@Entity
+@Entity(tableName = "Meaning")
 data class CommonMeaning (
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "Id") val id: Int,
     @NonNull @ColumnInfo(name = "Contents") val contents: String,

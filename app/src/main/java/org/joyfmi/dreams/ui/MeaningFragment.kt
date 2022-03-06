@@ -9,11 +9,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.databinding.MeaningFragmentBinding
+import org.joyfmi.dreams.repository.SymbolIdentity
 import org.joyfmi.dreams.viewmodels.MeaningViewModel
 import org.joyfmi.dreams.viewmodels.MeaningViewModelFactory
 
@@ -30,13 +32,13 @@ class MeaningFragment: Fragment() {
             (activity?.application as DreamApplication).repository
         )
     }
-    private var symbolId: Int = 0
+    private lateinit var symbolIdentity: SymbolIdentity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("MeaningFragment", "Creating")
         arguments?.let {
-            symbolId = it.getInt("symbolId")
+            symbolIdentity = it.get("symbolIdentity") as SymbolIdentity
         }
     }
 
@@ -44,7 +46,7 @@ class MeaningFragment: Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.d("MeaningFragment", "Creating View")
         _binding = MeaningFragmentBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -56,12 +58,15 @@ class MeaningFragment: Fragment() {
         Log.d("MeaningFragment", "Created View")
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val meaningAdapter = MeaningAdapter()
+        val meaningAdapter = MeaningListAdapter()
         recyclerView.adapter = meaningAdapter
-        lifecycle.coroutineScope.launch {
-            viewModel.getMeaningsBySymbol("Animals")?.collect() {
+
+        //lifecycle.coroutineScope.launch {
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+            viewModel.getMeaningsBySymbolIdentity(symbolIdentity).collect() {
                 meaningAdapter.submitList(it)
             }
         }
+        viewModel.loadSymbolMeanings(symbolIdentity, meaningAdapter)
     }
 }

@@ -9,14 +9,16 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.joyfmi.dreams.databinding.SymbolFragmentBinding
 import org.joyfmi.dreams.viewmodels.SymbolViewModel
 import org.joyfmi.dreams.viewmodels.SymbolViewModelFactory
-import kotlinx.coroutines.flow.collect
 import org.joyfmi.dreams.DreamApplication
+import org.joyfmi.dreams.repository.CategoryIdentity
 
 class SymbolFragment: Fragment() {
 
@@ -31,13 +33,13 @@ class SymbolFragment: Fragment() {
             (activity?.application as DreamApplication).repository
         )
     }
-    private var categoryId: Int = 0
+    private lateinit var categoryIdentity: CategoryIdentity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("SymbolFragment", "Creating")
         arguments?.let {
-            categoryId = it.getInt("categoryId")
+            categoryIdentity = it.get("categoryIdentity") as CategoryIdentity
         }
     }
 
@@ -45,7 +47,7 @@ class SymbolFragment: Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         Log.d("SymbolFragment", "Creating View")
         _binding = SymbolFragmentBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -57,17 +59,21 @@ class SymbolFragment: Fragment() {
         Log.d("SymbolFragment", "View Created")
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val symbolAdapter = SymbolAdapter({
+        val symbolAdapter = SymbolListAdapter {
             val action = SymbolFragmentDirections.actionSymbolFragmentToMeaningFragment(
-                symbolId = it.id
+                symbolIdentity = it
             )
             view.findNavController().navigate(action)
-        })
+        }
         recyclerView.adapter = symbolAdapter
         lifecycle.coroutineScope.launch {
-            viewModel.symbolsByCategoryId(categoryId)?.collect() {
+        //viewModel.viewModelScope.launch(Dispatchers.IO) {
+            viewModel.symbolIdentitiesByCategoryIdentity(categoryIdentity).collect() {
                 symbolAdapter.submitList(it)
             }
         }
+        /*
+        viewModel.loadSymbolList(categoryIdentity, symbolAdapter)
+         */
     }
 }

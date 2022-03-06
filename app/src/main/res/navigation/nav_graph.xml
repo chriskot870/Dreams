@@ -9,7 +9,7 @@
     <fragment
         android:id="@+id/CategoryFragment"
         android:name="org.joyfmi.dreams.ui.CategoryFragment"
-        android:label="@string/app_name"
+        android:label="@string/category_header"
         tools:layout="@layout/category_fragment">
         <action
             android:id="@+id/action_categoryFragment_to_symbolFragment"
@@ -18,11 +18,11 @@
     <fragment
         android:id="@+id/SymbolFragment"
         android:name="org.joyfmi.dreams.ui.SymbolFragment"
-        android:label="Symbols"
+        android:label="@string/symbol_header"
         tools:layout="@layout/symbol_fragment">
         <argument
-            android:name="categoryId"
-            app:argType="integer" />
+            android:name="categoryIdentity"
+            app:argType="org.joyfmi.dreams.repository.CategoryIdentity" />
         <action
             android:id="@+id/action_symbolFragment_to_meaningFragment"
             app:destination="@id/MeaningFragment" />
@@ -30,9 +30,9 @@
     <fragment
         android:id="@+id/MeaningFragment"
         android:name="org.joyfmi.dreams.ui.MeaningFragment"
-        android:label="MeaningFragment" >
+        android:label="@string/meaning_header" >
         <argument
-            android:name="symbolId"
-            app:argType="integer" />
+            android:name="symbolIdentity"
+            app:argType="org.joyfmi.dreams.repository.SymbolIdentity" />
     </fragment>
 </navigation>

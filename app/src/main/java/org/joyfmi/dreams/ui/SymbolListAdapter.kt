@@ -8,18 +8,19 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.joyfmi.dreams.databinding.SymbolItemBinding
 import org.joyfmi.dreams.repository.Symbol
+import org.joyfmi.dreams.repository.SymbolIdentity
 
-class SymbolAdapter(
-        private val onItemClicked: (Symbol) -> Unit
-    ) : ListAdapter<Symbol, SymbolAdapter.SymbolViewHolder>(DiffCallback) {
+class SymbolListAdapter(
+        private val onItemClicked: (SymbolIdentity) -> Unit
+    ) : ListAdapter<SymbolIdentity, SymbolListAdapter.SymbolViewHolder>(DiffCallback) {
 
         companion object {
-            private val DiffCallback = object : DiffUtil.ItemCallback<Symbol>() {
-                override fun areItemsTheSame(oldItem: Symbol, newItem: Symbol): Boolean {
+            private val DiffCallback = object : DiffUtil.ItemCallback<SymbolIdentity>() {
+                override fun areItemsTheSame(oldItem: SymbolIdentity, newItem: SymbolIdentity): Boolean {
                     return oldItem.id == newItem.id
                 }
 
-                override fun areContentsTheSame(oldItem: Symbol, newItem: Symbol): Boolean {
+                override fun areContentsTheSame(oldItem: SymbolIdentity, newItem: SymbolIdentity): Boolean {
                     return oldItem == newItem
                 }
             }
@@ -49,9 +50,9 @@ class SymbolAdapter(
     class SymbolViewHolder(
         private var binding: SymbolItemBinding
     ): RecyclerView.ViewHolder(binding.root) {
-        fun bind(symbol: Symbol) {
+        fun bind(symbolIdentity: SymbolIdentity) {
             Log.d("SymbolViewHolder", "Assigning Values")
-            binding.symbolTextView.text = symbol.name
+            binding.symbolTextView.text = symbolIdentity.name
         }
     }
 }

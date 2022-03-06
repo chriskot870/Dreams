@@ -5,20 +5,20 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import org.joyfmi.dreams.repository.Category
+import org.joyfmi.dreams.repository.CategoryIdentity
 import org.joyfmi.dreams.databinding.CategoryItemBinding
 
 class CategoryListAdapter(
-    private val onItemClicked: (Category) -> Unit
-) : ListAdapter<Category, CategoryListAdapter.CategoryViewHolder>(DiffCallback) {
+    private val onItemClicked: (CategoryIdentity) -> Unit
+) : ListAdapter<CategoryIdentity, CategoryListAdapter.CategoryViewHolder>(DiffCallback) {
 
     companion object {
-        private val DiffCallback = object : DiffUtil.ItemCallback<Category>() {
-            override fun areItemsTheSame(oldItem: Category, newItem: Category): Boolean {
+        private val DiffCallback = object : DiffUtil.ItemCallback<CategoryIdentity>() {
+            override fun areItemsTheSame(oldItem: CategoryIdentity, newItem: CategoryIdentity): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame(oldItem: Category, newItem: Category): Boolean {
+            override fun areContentsTheSame(oldItem: CategoryIdentity, newItem: CategoryIdentity): Boolean {
                 return oldItem == newItem
             }
         }
@@ -46,8 +46,8 @@ class CategoryListAdapter(
     class CategoryViewHolder(
         private var binding: CategoryItemBinding
     ): RecyclerView.ViewHolder(binding.root) {
-        fun bind(category: Category) {
-            binding.categoryTextView.text = category.name
+        fun bind(categoryIdentity: CategoryIdentity) {
+            binding.categoryTextView.text = categoryIdentity.name
         }
     }
 }

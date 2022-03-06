@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class LocalSymbol(
+data class LocalMeaning(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "Id") val id: Int,
     @NonNull @ColumnInfo(name = "Category") val category: String,
     @NonNull @ColumnInfo(name = "Name") val name: String,

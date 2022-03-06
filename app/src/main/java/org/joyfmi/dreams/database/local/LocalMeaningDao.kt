@@ -5,25 +5,25 @@ import kotlinx.coroutines.flow.Flow
 
 
 @Dao
-interface LocalSymbolDao {
+interface LocalMeaningDao {
     /*
      * This gets a specific local symbol
      */
-    @Query("SELECT * FROM LocalSymbol WHERE Id = :id")
-    fun getSymbolById(id: Int): Flow<LocalSymbol>
+    @Query("SELECT * FROM LocalMeaning WHERE Id = :id")
+    fun getSymbolById(id: Int): Flow<LocalMeaning>
     /*
      * It is possible for their to be multiple Meanings for a symbol so get all
      * the entries with the given symbol
      */
-    @Query("SELECT * FROM LocalSymbol WHERE Name = :name")
-    fun getAllSymbolsByName(name: String): Flow<List<LocalSymbol>>
+    @Query("SELECT * FROM LocalMeaning WHERE Name = :name")
+    fun getAllSymbolsByName(name: String): Flow<List<LocalMeaning>>
     /*
      * We will want to get the list of all the different categories.
      * There can be multiple occurrences of a Category so we use to
      * DISTINCT to get just one of each different Category. Also,
      * all we want is the Category list
      */
-    @Query("SELECT DISTINCT Category FROM LocalSymbol")
+    @Query("SELECT DISTINCT Category FROM LocalMeaning")
     fun getAllCategories(): Flow<List<String>>
 
     /*
@@ -33,7 +33,7 @@ interface LocalSymbolDao {
      * all we want is the Symbol list
      */
 
-    @Query("SELECT DISTINCT Name FROM LocalSymbol")
+    @Query("SELECT DISTINCT Name FROM LocalMeaning")
     fun getAllSymbols(): Flow<List<String>>
 
     /*
@@ -43,7 +43,7 @@ interface LocalSymbolDao {
      * the same category.
      * We expect this to return 1 value. If there are more than 1 then something went terribly wrong
      */
-    @Query("SELECT DISTINCT Category FROM LocalSymbol WHERE Name = :name")
+    @Query("SELECT DISTINCT Category FROM LocalMeaning WHERE Name = :name")
     fun getCategoriesForSymbol(name: String): Flow<List<String>>
 
     /*

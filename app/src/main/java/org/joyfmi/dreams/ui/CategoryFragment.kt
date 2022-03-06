@@ -1,21 +1,23 @@
 package org.joyfmi.dreams.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.joyfmi.dreams.databinding.CategoryFragmentBinding
 import org.joyfmi.dreams.viewmodels.CategoryViewModel
 import org.joyfmi.dreams.viewmodels.CategoryViewModelFactory
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.joyfmi.dreams.DreamApplication
+import org.joyfmi.dreams.repository.CategoryIdentity
 
 class CategoryFragment: Fragment() {
 
@@ -24,6 +26,8 @@ class CategoryFragment: Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var recyclerView: RecyclerView
+
+    //private lateinit var categoryIdentity: CategoryIdentity
 
     private val viewModel: CategoryViewModel by activityViewModels {
         CategoryViewModelFactory(
@@ -35,7 +39,8 @@ class CategoryFragment: Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        Log.d("NoStart", "CategoryFragment: onCreateView")
         _binding = CategoryFragmentBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
@@ -45,18 +50,27 @@ class CategoryFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val categoryAdapter = CategoryListAdapter({
+        val categoryAdapter = CategoryListAdapter {
             val action = CategoryFragmentDirections.actionCategoryFragmentToSymbolFragment(
-                categoryId = it.id
+                categoryIdentity = it
             )
             view.findNavController().navigate(action)
-        })
-        recyclerView.adapter = categoryAdapter
-        lifecycle.coroutineScope.launch {
-            viewModel.getallCategories()?.collect() {
-                categoryAdapter.submitList(it)
-            }
         }
+        recyclerView.adapter = categoryAdapter
+        /*
+         * Go get the Categories and Submit it to the Adapter
+         */
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+                viewModel.getAllCategories().collect() {
+                    categoryAdapter.submitList(it)
+                }
+
+        }
+        /*
+        Log.d("UMD", "calling loadCategoryList")
+        viewModel.loadCategoryList(categoryAdapter)
+        Log.d("UMD", "came back from loadCategoryList")
+         */
     }
 
     override fun onDestroyView() {

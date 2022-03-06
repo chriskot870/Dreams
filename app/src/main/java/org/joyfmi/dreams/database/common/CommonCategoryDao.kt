@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CommonCategoryDao {
 
-    @Query("SELECT * FROM CommonCategory")
+    @Query("SELECT * FROM Category")
     fun getAllCategories(): Flow<List<CommonCategory>>
 }
