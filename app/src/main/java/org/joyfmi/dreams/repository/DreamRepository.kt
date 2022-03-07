@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.database.common.CommonDatabase
+import org.joyfmi.dreams.database.common.CommonSymbol
 import org.joyfmi.dreams.database.local.LocalDatabase
 import org.joyfmi.dreams.viewmodels.CategoryViewModel
 
@@ -118,7 +119,21 @@ class DreamRepository(val application: DreamApplication) {
     }
 
     suspend fun symbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): Flow<List<SymbolIdentity>> = flow {
-        commonDatabase.commonSymbolDao().getSymbolNamesByCategoryId(categoryIdentity.id).collect() {
+
+        var commonSearch: Flow<List<CommonSymbol>> =
+            commonDatabase.commonSymbolDao().getSymbolNamesByCategoryId(categoryIdentity.id)
+        /*
+         * The All option will have an id of 1 and local will be 0.
+         * If that is the option then get all symbols.
+         */
+        if ( categoryIdentity.id == 1 && categoryIdentity.local == 0 ) {
+            /*
+             * It is a request for all symbols so use getAllSymbols
+             */
+            commonSearch = commonDatabase.commonSymbolDao().getAllSymbols()
+        }
+
+        commonSearch.collect() {
             val symbolList: MutableList<SymbolIdentity> = mutableListOf()
             /*
              * For each element use the CommonCategory information to create a Category item
