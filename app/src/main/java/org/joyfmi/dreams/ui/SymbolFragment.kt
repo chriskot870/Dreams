@@ -14,6 +14,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.databinding.SymbolFragmentBinding
 import org.joyfmi.dreams.viewmodels.SymbolViewModel
 import org.joyfmi.dreams.viewmodels.SymbolViewModelFactory
@@ -66,14 +67,7 @@ class SymbolFragment: Fragment() {
             view.findNavController().navigate(action)
         }
         recyclerView.adapter = symbolAdapter
-        lifecycle.coroutineScope.launch {
-        //viewModel.viewModelScope.launch(Dispatchers.IO) {
-            viewModel.symbolIdentitiesByCategoryIdentity(categoryIdentity).collect() {
-                symbolAdapter.submitList(it)
-            }
-        }
-        /*
         viewModel.loadSymbolList(categoryIdentity, symbolAdapter)
-         */
+
     }
 }

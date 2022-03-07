@@ -3,10 +3,12 @@ package org.joyfmi.dreams.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.repository.DreamRepository
 import org.joyfmi.dreams.repository.CategoryIdentity
 import org.joyfmi.dreams.ui.CategoryListAdapter
@@ -24,7 +26,27 @@ class CategoryViewModel(private val repository:DreamRepository): ViewModel() {
      * This routine is experimental
      */
     fun loadCategoryList(categoryAdapter: CategoryListAdapter) {
+        /*
+         * We are going to do some I/O so launch a coroutine to do the work
+         */
         viewModelScope.launch(Dispatchers.IO) {
+            repository.getAllCategories().collect() {
+                /*
+                 * We need to go into the main thread in order to update the symbolAdapter List
+                 */
+                withContext(Dispatchers.Main) {
+                    Log.d("Dreams", "loadCategory in Coroutine  in Context Thread: " + Thread.currentThread().name.toString())
+                    categoryAdapter.submitList(it)
+                }
+            }
+        }
+
+
+
+
+        //lifecycle.coroutineScope().launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d("Dreams", "loadCategory in Coroutine Thread: " + Thread.currentThread().name.toString())
             repository.getAllCategories().collect() {
                 categoryAdapter.submitList(it)
             }

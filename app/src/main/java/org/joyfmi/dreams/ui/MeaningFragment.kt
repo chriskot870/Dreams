@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.databinding.MeaningFragmentBinding
 import org.joyfmi.dreams.repository.SymbolIdentity
@@ -60,13 +61,6 @@ class MeaningFragment: Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val meaningAdapter = MeaningListAdapter()
         recyclerView.adapter = meaningAdapter
-
-        //lifecycle.coroutineScope.launch {
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
-            viewModel.getMeaningsBySymbolIdentity(symbolIdentity).collect() {
-                meaningAdapter.submitList(it)
-            }
-        }
         viewModel.loadSymbolMeanings(symbolIdentity, meaningAdapter)
     }
 }

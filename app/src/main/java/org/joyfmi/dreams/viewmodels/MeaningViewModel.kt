@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.repository.*
 import org.joyfmi.dreams.ui.MeaningListAdapter
 import org.joyfmi.dreams.ui.SymbolListAdapter
@@ -19,15 +20,17 @@ class MeaningViewModel(private val repository: DreamRepository): ViewModel() {
 
     fun loadSymbolMeanings(symbolIdentity: SymbolIdentity, meaningAdapter: MeaningListAdapter) {
         /*
-         * Start a coroutine and get the list of CategoryIdentities
+         * We are going to do some I/O so launch a coroutine to do the work
          */
-        Log.d("Dreams", "Entered loadSymbolMeanings")
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("Dreams", "In new launch")
-            repository.getMeaningsBySymbolIdentity(symbolIdentity).collect() {
-                meaningAdapter.submitList(it)
+            getMeaningsBySymbolIdentity(symbolIdentity).collect() {
+                /*
+                 * We need to go into the main thread in order to update the meaningAdapter List
+                 */
+                withContext(Dispatchers.Main) {
+                    meaningAdapter.submitList(it)
+                }
             }
-            Log.d("Dreams", "Exiting loadSymbolMeanings")
         }
     }
 }

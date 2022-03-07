@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.databinding.CategoryFragmentBinding
 import org.joyfmi.dreams.viewmodels.CategoryViewModel
 import org.joyfmi.dreams.viewmodels.CategoryViewModelFactory
@@ -57,20 +58,7 @@ class CategoryFragment: Fragment() {
             view.findNavController().navigate(action)
         }
         recyclerView.adapter = categoryAdapter
-        /*
-         * Go get the Categories and Submit it to the Adapter
-         */
-        viewModel.viewModelScope.launch(Dispatchers.IO) {
-                viewModel.getAllCategories().collect() {
-                    categoryAdapter.submitList(it)
-                }
-
-        }
-        /*
-        Log.d("UMD", "calling loadCategoryList")
         viewModel.loadCategoryList(categoryAdapter)
-        Log.d("UMD", "came back from loadCategoryList")
-         */
     }
 
     override fun onDestroyView() {
