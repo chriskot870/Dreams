@@ -19,9 +19,6 @@ class SymbolViewModel(private val repository: DreamRepository): ViewModel() {
     suspend fun symbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): Flow<List<SymbolIdentity>> = repository.symbolIdentitiesByCategoryIdentity(categoryIdentity)
 
     fun loadSymbolList(categoryIdentity: CategoryIdentity,  symbolAdapter: SymbolListAdapter) {
-        Log.d("Dreams", "loadSymbol before Coroutine Thread: " + Thread.currentThread().name.toString())
-        //lifecycle.coroutineScope.launch {
-
         /*
          * We are going to do some I/O so launch a coroutine to do the work
          */
@@ -33,14 +30,6 @@ class SymbolViewModel(private val repository: DreamRepository): ViewModel() {
                 withContext(Dispatchers.Main) {
                     symbolAdapter.submitList(it)
                 }
-            }
-        }
-
-
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.d("Dreams", "loadSymbol in Coroutine Thread: " + Thread.currentThread().name.toString())
-            symbolIdentitiesByCategoryIdentity(categoryIdentity).collect() {
-                symbolAdapter.submitList(it)
             }
         }
     }

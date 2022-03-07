@@ -15,12 +15,8 @@ import org.joyfmi.dreams.ui.CategoryListAdapter
 
 class CategoryViewModel(private val repository:DreamRepository): ViewModel() {
 
-    suspend fun getAllCategories(): Flow<List<CategoryIdentity>> {
-        Log.d("Category","In ViewModel calling repository" )
-        val catList = repository.getAllCategories()
-        Log.d("Category", "ViewModel back fro Repository")
-        return catList
-    }
+    suspend fun getAllCategories(): Flow<List<CategoryIdentity>> = repository.getAllCategories()
+
     /*
      * Start a coroutine and get the list of CategoryIdentities
      * This routine is experimental
@@ -35,20 +31,8 @@ class CategoryViewModel(private val repository:DreamRepository): ViewModel() {
                  * We need to go into the main thread in order to update the symbolAdapter List
                  */
                 withContext(Dispatchers.Main) {
-                    Log.d("Dreams", "loadCategory in Coroutine  in Context Thread: " + Thread.currentThread().name.toString())
                     categoryAdapter.submitList(it)
                 }
-            }
-        }
-
-
-
-
-        //lifecycle.coroutineScope().launch {
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.d("Dreams", "loadCategory in Coroutine Thread: " + Thread.currentThread().name.toString())
-            repository.getAllCategories().collect() {
-                categoryAdapter.submitList(it)
             }
         }
     }
