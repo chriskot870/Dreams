@@ -20,9 +20,10 @@ class DreamRepository(val application: DreamApplication) {
 
     private var commonDatabase: CommonDatabase = CommonDatabase.getDatabase(application)
 
-    private var localDatabase: LocalDatabase? = LocalDatabase.getDatabase(application)
+    //private var localDatabase: LocalDatabase? = LocalDatabase.getDatabase(application)
     private val dreamApp: DreamApplication = application
-    private val repositoryScope:CoroutineScope = CoroutineScope(Dispatchers.IO)
+    private val repositoryScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+
     /*
      * This sets the mode. The values are the following:
      * 0: Only want Common Database info
@@ -66,19 +67,19 @@ class DreamRepository(val application: DreamApplication) {
                  * Create a Category with the values from the CommonCategory
                  * Add the new Category to the List of Category's to be returned
                  */
-                    categoryIdentityList.add(CategoryIdentity(it.id, it.name, it.local))
+                categoryIdentityList.add(CategoryIdentity(it.id, it.name, it.local))
             }
             /*
-             * We want to return a List of Categoroy not a MutableList.
-             * Since this is the last operation of collect it will be this value that is returned???
+             * We want to return a List of Category not a MutableList.
+             * We also want to source using the CategoryIdentityComparator
              */
+            categoryIdentityList.sortWith(CategoryIdentityComparator)
             emit(categoryIdentityList.toList())
         }
     }
 
 
-
-    fun getMeaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): Flow<List<Meaning>>  = flow {
+    fun getMeaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): Flow<List<Meaning>> = flow {
         /*
          * For the Common Datbase we use the symbolIdentity's id
          */
@@ -118,42 +119,41 @@ class DreamRepository(val application: DreamApplication) {
         }
     }
 
-    suspend fun symbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): Flow<List<SymbolIdentity>> = flow {
+    suspend fun symbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): Flow<List<SymbolIdentity>> =
+        flow {
 
-        var commonSearch: Flow<List<CommonSymbol>> =
-            commonDatabase.commonSymbolDao().getSymbolNamesByCategoryId(categoryIdentity.id)
-        /*
-         * The All option will have an id of 1 and local will be 0.
-         * If that is the option then get all symbols.
-         */
-        if ( categoryIdentity.id == 1 && categoryIdentity.local == 0 ) {
+            var commonSearch: Flow<List<CommonSymbol>> =
+                commonDatabase.commonSymbolDao().getSymbolNamesByCategoryId(categoryIdentity.id)
             /*
-             * It is a request for all symbols so use getAllSymbols
+             * The All option will have an id of 1 and local will be 0.
+             * If that is the option then get all symbols.
              */
-            commonSearch = commonDatabase.commonSymbolDao().getAllSymbols()
-        }
-
-        commonSearch.collect() {
-            val symbolList: MutableList<SymbolIdentity> = mutableListOf()
-            /*
-             * For each element use the CommonCategory information to create a Category item
-             * Remember we are getting a List of Category items for each it and so we need to
-             * look at each Category in it
-             */
-            it.forEach {
+            if (categoryIdentity.id == 1 && categoryIdentity.local == 0) {
                 /*
-                 * Create a Symbol with the values from the CommonSymbol
-                 * Add the new Symbol to the List of Symbols to be returned
+                 * It is a request for All symbols so use getAllSymbols
                  */
-                symbolList.add(SymbolIdentity(it.id, it.name, it.local))
+                commonSearch = commonDatabase.commonSymbolDao().getAllSymbols()
             }
-            /*
-             * We want to return a List of Categoroy not a MutableList.
-             * Since this is the last operation of collect it will be this value that is returned???
-             */
-            emit(symbolList.toList())
+
+            commonSearch.collect() {
+                val symbolList: MutableList<SymbolIdentity> = mutableListOf()
+                /*
+                 * For each element use the CommonCategory information to create a Category item
+                 * Remember we are getting a List of Category items for each it and so we need to
+                 * look at each Category in it
+                 */
+                it.forEach {
+                    /*
+                     * Create a Symbol with the values from the CommonSymbol
+                     * Add the new Symbol to the List of Symbols to be returned
+                     */
+                    symbolList.add(SymbolIdentity(it.id, it.name, it.local))
+                }
+                symbolList.sortWith(SymbolIdentityComparator)
+
+                emit(symbolList.toList())
+            }
         }
-    }
 }
 
 class CommonCategoryFactory(
@@ -167,3 +167,76 @@ class CommonCategoryFactory(
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
+class SymbolIdentityComparator {
+    companion object : Comparator<SymbolIdentity> {
+        var mode: Int = 0
+        override fun compare(a: SymbolIdentity, b: SymbolIdentity): Int {
+            /*
+             * It's optional to sort the Local ones first or the Common first
+             * or mix them.
+             * The mode variable determines:
+             * mode = 0 Mixed
+             * mode = 1 Common First
+             * mode = 2 Local First
+             */
+            when (mode) {
+                1 -> if (a.local != b.local) return a.local.compareTo(b.local)
+                2 -> if (a.local != b.local) return b.local.compareTo(a.local)
+            }
+            /*
+             * Either Mode is mixed or both have same local value
+             */
+            val aIsNumeric = a.name.matches("-?\\d+(\\.\\d+)?".toRegex())
+            val bIsNumeric = b.name.matches("-?\\d+(\\.\\d+)?".toRegex())
+            /*
+             * Any numeric value is less than any non-numeric value
+             */
+            if (aIsNumeric && !bIsNumeric) return 1
+            if (!aIsNumeric && bIsNumeric) return -1
+            if (aIsNumeric && bIsNumeric) return a.name.toDouble().compareTo(b.name.toDouble())
+            /*
+             * The last possibility is that neither can be converted to a number.
+             * So, compare the items directly
+             */
+            return a.name.compareTo(b.name)
+        }
+    }
+}
+
+class CategoryIdentityComparator {
+    companion object : Comparator<CategoryIdentity> {
+        var mode: Int = 0
+        override fun compare(a: CategoryIdentity, b: CategoryIdentity): Int {
+            /*
+             * It's optional to sort the Local ones first or the Common first
+             * or mix them.
+             * The mode variable determines:
+             * mode = 0 Mixed
+             * mode = 1 Common First
+             * mode = 2 Local First
+             */
+            when (mode) {
+                1 -> if (a.local != b.local) return a.local.compareTo(b.local)
+                2 -> if (a.local != b.local) return b.local.compareTo(a.local)
+            }
+            /*
+             * Either Mode is mixed or both have same local value
+             */
+            val aIsNumeric = a.name.matches("-?\\d+(\\.\\d+)?".toRegex())
+            val bIsNumeric = b.name.matches("-?\\d+(\\.\\d+)?".toRegex())
+            /*
+             * Any numeric value is less than any non-numeric value
+             */
+            if (aIsNumeric && !bIsNumeric) return -1
+            if (!aIsNumeric && bIsNumeric) return 1
+            if (aIsNumeric && bIsNumeric) return a.name.toDouble().compareTo(b.name.toDouble())
+            /*
+             * The last possibility is that neither can be converted to a number.
+             * So, compare the items directly
+             */
+            return a.name.compareTo(b.name)
+        }
+    }
+}
+
