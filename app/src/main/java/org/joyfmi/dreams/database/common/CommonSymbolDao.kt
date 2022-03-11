@@ -2,8 +2,6 @@ package org.joyfmi.dreams.database.common
 
 import androidx.room.Dao
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
-
 /*
  * This provides the routines to get data from the Symbol Table of the database
  */
@@ -11,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 interface CommonSymbolDao {
 
     @Query("SELECT * FROM Symbol WHERE categoryId = :cat ORDER By name ASC")
-    fun getSymbolNamesByCategoryId(cat: Int): List<CommonSymbol>
+    suspend fun getSymbolNamesByCategoryId(cat: Int): List<CommonSymbol>
 
     @Query("SELECT * FROM Symbol ORDER By name ASC")
-    fun getAllSymbols(): List<CommonSymbol>
+    suspend fun getAllSymbols(): List<CommonSymbol>
 }

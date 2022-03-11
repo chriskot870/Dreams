@@ -1,8 +1,6 @@
 package org.joyfmi.dreams.database.local
 
 import androidx.room.*
-import kotlinx.coroutines.flow.Flow
-
 
 @Dao
 interface LocalMeaningDao {
@@ -14,7 +12,7 @@ interface LocalMeaningDao {
      * all we want is the Category list
      */
     @Query("SELECT DISTINCT Category FROM LocalMeaning")
-    fun getAllCategories(): List<String>
+    suspend fun getAllCategories(): List<String>
 
     /*
      * We will want to get the list of all the different Symbols.
@@ -23,13 +21,13 @@ interface LocalMeaningDao {
      * all we want is the Symbol list
      */
     @Query("SELECT DISTINCT Symbol FROM LocalMeaning")
-    fun getAllSymbols(): List<String>
+    suspend fun getAllSymbols(): List<String>
 
     /*
      * Get all symbols by categoryName
      */
     @Query("SELECT DISTINCT Symbol FROM LocalMeaning WHERE Category = :name")
-    fun getAllSymbolsByCategoryName(name: String): List<String>
+    suspend fun getAllSymbolsByCategoryName(name: String): List<String>
 
     /*
      * We want to make sure that all of the entries with the same symbol have the same category.
@@ -38,14 +36,14 @@ interface LocalMeaningDao {
      * the same category.
      * We expect this to return 1 value. If there are more than 1 then something went terribly wrong
      */
-    @Query("SELECT DISTINCT Category FROM LocalMeaning WHERE Symbol = :name")
-    fun getCategoriesBySymbol(name: String): List<String>
+   // @Query("SELECT DISTINCT Category FROM LocalMeaning WHERE Symbol = :name")
+   // suspend fun getCategoriesBySymbol(name: String): List<String>
 
     /*
      *
      */
     @Query("SELECT * From LocalMeaning WHERE Symbol = :name")
-    fun getMeaningsBySymbolName(name: String): List<LocalMeaning>
+    suspend fun getMeaningsBySymbolName(name: String): List<LocalMeaning>
 
     /*
      * Below are the routines that modify the database

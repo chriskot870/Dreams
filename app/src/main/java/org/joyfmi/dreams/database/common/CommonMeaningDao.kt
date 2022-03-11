@@ -2,8 +2,6 @@ package org.joyfmi.dreams.database.common
 
 import androidx.room.Dao
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
-
 /*
  * This provides the routines to get data from the Symbol Table of the database
  */
@@ -14,7 +12,7 @@ interface CommonMeaningDao {
      * This will get a single entry
      */
     @Query("SELECT * FROM Meaning WHERE Id = :id")
-    fun getMeaningById(id: Int): CommonMeaning
+    suspend fun getMeaningById(id: Int): CommonMeaning
     /*
      * Get the Meanings with the provided symbolID from the Meaning table of the database
      * Currently we only expect one entry but the database can handle multiple meanings
@@ -23,6 +21,6 @@ interface CommonMeaningDao {
      * So we expect a List of Meanings, but currently expect to just have one element on the List
      */
     @Query("SELECT * FROM Meaning WHERE symbolId = :symId")
-    fun getMeaningsBySymbolId(symId: Int): List<CommonMeaning>
+    suspend fun getMeaningsBySymbolId(symId: Int): List<CommonMeaning>
 
 }

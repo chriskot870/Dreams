@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 
 @Database(
-    entities = arrayOf(CommonCategory::class, CommonSymbol::class, CommonMeaning::class),
+    entities = [CommonCategory::class, CommonSymbol::class, CommonMeaning::class],
     version = 1,
     exportSchema = false)
 abstract class CommonDatabase: RoomDatabase() {

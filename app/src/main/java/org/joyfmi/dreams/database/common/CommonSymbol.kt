@@ -5,7 +5,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-
 /*
  * Define the data Symbol class that matches the Symbol Table of the database
  */
