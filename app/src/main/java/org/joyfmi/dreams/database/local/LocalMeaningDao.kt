@@ -6,17 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocalMeaningDao {
-    /*
-     * This gets a specific local symbol
-     */
-    @Query("SELECT * FROM LocalMeaning WHERE Id = :id")
-    fun getSymbolById(id: Int): Flow<LocalMeaning>
-    /*
-     * It is possible for their to be multiple Meanings for a symbol so get all
-     * the entries with the given symbol
-     */
-    @Query("SELECT * FROM LocalMeaning WHERE Name = :name")
-    fun getAllSymbolsByName(name: String): Flow<List<LocalMeaning>>
+
     /*
      * We will want to get the list of all the different categories.
      * There can be multiple occurrences of a Category so we use to
@@ -24,7 +14,7 @@ interface LocalMeaningDao {
      * all we want is the Category list
      */
     @Query("SELECT DISTINCT Category FROM LocalMeaning")
-    fun getAllCategories(): Flow<List<String>>
+    fun getAllCategories(): List<String>
 
     /*
      * We will want to get the list of all the different Symbols.
@@ -32,9 +22,14 @@ interface LocalMeaningDao {
      * DISTINCT to get just one of each different Symbols. Also,
      * all we want is the Symbol list
      */
+    @Query("SELECT DISTINCT Symbol FROM LocalMeaning")
+    fun getAllSymbols(): List<String>
 
-    @Query("SELECT DISTINCT Name FROM LocalMeaning")
-    fun getAllSymbols(): Flow<List<String>>
+    /*
+     * Get all symbols by categoryName
+     */
+    @Query("SELECT DISTINCT Symbol FROM LocalMeaning WHERE Category = :name")
+    fun getAllSymbolsByCategoryName(name: String): List<String>
 
     /*
      * We want to make sure that all of the entries with the same symbol have the same category.
@@ -43,8 +38,14 @@ interface LocalMeaningDao {
      * the same category.
      * We expect this to return 1 value. If there are more than 1 then something went terribly wrong
      */
-    @Query("SELECT DISTINCT Category FROM LocalMeaning WHERE Name = :name")
-    fun getCategoriesForSymbol(name: String): Flow<List<String>>
+    @Query("SELECT DISTINCT Category FROM LocalMeaning WHERE Symbol = :name")
+    fun getCategoriesBySymbol(name: String): List<String>
+
+    /*
+     *
+     */
+    @Query("SELECT * From LocalMeaning WHERE Symbol = :name")
+    fun getMeaningsBySymbolName(name: String): List<LocalMeaning>
 
     /*
      * Below are the routines that modify the database

@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.Flow
 interface CommonSymbolDao {
 
     @Query("SELECT * FROM Symbol WHERE categoryId = :cat ORDER By name ASC")
-    fun getSymbolNamesByCategoryId(cat: Int): Flow<List<CommonSymbol>>
+    fun getSymbolNamesByCategoryId(cat: Int): List<CommonSymbol>
 
     @Query("SELECT * FROM Symbol ORDER By name ASC")
-    fun getAllSymbols(): Flow<List<CommonSymbol>>
+    fun getAllSymbols(): List<CommonSymbol>
 }

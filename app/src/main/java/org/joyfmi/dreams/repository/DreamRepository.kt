@@ -5,22 +5,21 @@ import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.database.common.CommonDatabase
 import org.joyfmi.dreams.database.common.CommonSymbol
 import org.joyfmi.dreams.database.local.LocalDatabase
 import org.joyfmi.dreams.viewmodels.CategoryViewModel
 
+const val DB_COMMON_ONLY = 0
+const val DB_LOCAL_ONLY = 1
+const val DB_COMMON_AND_LOCAL = 2
 
 class DreamRepository(val application: DreamApplication) {
 
     private var commonDatabase: CommonDatabase = CommonDatabase.getDatabase(application)
-
-    //private var localDatabase: LocalDatabase? = LocalDatabase.getDatabase(application)
+    private var localDatabase: LocalDatabase = LocalDatabase.getDatabase(application)
     private val dreamApp: DreamApplication = application
     private val repositoryScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -30,7 +29,7 @@ class DreamRepository(val application: DreamApplication) {
      * 1: Only want Local Database info
      * 2: Want both Common and Local info
      */
-    private var mode: Int = 2
+    private var dbMode: Int = DB_COMMON_ONLY
 
     /*
      * We only want one instance of the repository so create a companion object to make sure only
@@ -55,75 +54,179 @@ class DreamRepository(val application: DreamApplication) {
      */
 
     suspend fun getAllCategories(): Flow<List<CategoryIdentity>> = flow {
-        commonDatabase.commonCategoryDao().getAllCategories().collect() {
-            val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
-            /*
-             * For each element use the CommonCategory information to create a Category item
-             * Remember we are getting a List of Category items for each it and so we need to
-             * look at each Category in it
-             */
-            it.forEach {
-                /*
-                 * Create a Category with the values from the CommonCategory
-                 * Add the new Category to the List of Category's to be returned
-                 */
-                categoryIdentityList.add(CategoryIdentity(it.id, it.name, it.local))
-            }
-            /*
-             * We want to return a List of Category not a MutableList.
-             * We also want to source using the CategoryIdentityComparator
-             */
-            categoryIdentityList.sortWith(CategoryIdentityComparator)
-            emit(categoryIdentityList.toList())
-        }
-    }
-
-
-    fun getMeaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): Flow<List<Meaning>> = flow {
+        val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
         /*
-         * For the Common Datbase we use the symbolIdentity's id
+         * If we want the common list then go get it
          */
-        commonDatabase.commonMeaningDao().getMeaningsBySymbolId(symbolIdentity.id).collect() {
-            val meaningList: MutableList<Meaning> = mutableListOf()
-            /*
-             * For each element use the CommonCategory information to create a Category item
-             * Remember we are getting a List of Category items for each it and so we need to
-             * look at each Category in it
-             */
-            it.forEach {
-                /*
-                 * Create a Meaning with the values from the CommonMeaning
-                 * Add the new Category to the List of Category's to be returned
-                 */
-                meaningList.add(
-                    Meaning(
-                        /*
-                         * The Meaning doesn't have a name. Just an id and whether it is local.
-                         */
-                        MeaningIdentity(it.id, it.local),
-                        it.reference,
-                        it.contents,
-                        /*
-                         * The common meanings were gotten from the symbolIdentity input parameter.
-                         * So we know that is the symbolIdentity that belongs with the meaning.
-                         */
-                        symbolIdentity
-                    )
-                )
-            }
-            /*
-             * We want to return a List of Categoroy not a MutableList.
-             * Since this is the last operation of collect it will be this value that is returned???
-             */
-            emit(meaningList.toList())
+        if (dbMode != DB_LOCAL_ONLY) {
+            val common = getCommonCategories()
+            categoryIdentityList.addAll(common)
         }
+        /*
+         * If we want the local list then go get it
+         */
+
+        if (dbMode != DB_COMMON_ONLY) {
+            val local = getAllLocalCategories()
+            /*
+             * We only want to add local categories that don't have the
+             * same name as a common category that is already on the list
+             */
+            for (localIdentity in local.iterator()) {
+                /*
+                 * Walk through all the local catagoeirs and check the name against all
+                 * the common categories already on the list
+                 */
+                loop@ for (commonIdentity in categoryIdentityList.iterator()) {
+                    if (commonIdentity.name == localIdentity.name) {
+                        /*
+                         * There is already a common categoryIdentity on the list so
+                         * don't add the local identity.
+                         * Go to the next local identity
+                         */
+                        break@loop
+                    }
+                    /*
+                     * If I made it to here the local name doesn't match any common names.
+                     * So, add it to the list.
+                     */
+                    categoryIdentityList.add(localIdentity)
+                }
+            }
+        }
+
+        /*
+         * Now the list has been created so sort it
+         */
+        categoryIdentityList.sortWith(CategoryIdentityComparator)
+        /*
+         * We want to pass back a List not a MutableList
+         */
+        emit(categoryIdentityList.toList())
     }
 
-    suspend fun symbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): Flow<List<SymbolIdentity>> =
-        flow {
+    private suspend fun getCommonCategories(): MutableList<CategoryIdentity> {
+        val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
+        val commons = commonDatabase.commonCategoryDao().getAllCategories()
 
-            var commonSearch: Flow<List<CommonSymbol>> =
-                commonDatabase.commonSymbolDao().getSymbolNamesByCategoryId(categoryIdentity.id)
+        /*
+         * For each element use the CommonCategory information to create a Category item
+         * Remember we are getting a List of Category items for each it and so we need to
+         * look at each Category in it
+         */
+        commons.forEach { common ->
+            /*
+             * Create a Category with the values from the CommonCategory
+             * Add the new Category to the List of Category's to be returned
+             */
+            categoryIdentityList.add(CategoryIdentity(common.id, common.name, common.local))
+        }
+        /*
+         * We want to return a List of Category not a MutableList.
+         * We also want to source using the CategoryIdentityComparator
+         */
+        categoryIdentityList.sortWith(CategoryIdentityComparator)
+        return(categoryIdentityList)
+    }
+
+    private suspend fun getAllCommonCategories(): MutableList<CategoryIdentity> {
+        val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
+        val commons = commonDatabase.commonCategoryDao().getAllCategories()
+
+        /*
+         * For each element use the CommonCategory information to create a Category item
+         */
+        commons.forEach { common ->
+            /*
+             * Create a Category with the values from the CommonCategory
+             * Add the new Category to the List of Category's to be returned
+             */
+            categoryIdentityList.add(CategoryIdentity(common.id, common.name, common.local))
+        }
+        /*
+         * We want to return a List of Category not a MutableList.
+         * We also want to source using the CategoryIdentityComparator
+         */
+        categoryIdentityList.sortWith(CategoryIdentityComparator)
+        return(categoryIdentityList)
+    }
+
+    private suspend fun getAllLocalCategories(): MutableList<CategoryIdentity> {
+        val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
+        val names = localDatabase.localMeaningDao().getAllCategories()
+        /*
+         * For each element use the LocalCategory information to create a Category item
+         */
+        names.forEach { name ->
+            /*
+             * Create a Category Identity
+             * Local Databases always have an id of 0 and a local value of 1
+             */
+            categoryIdentityList.add(CategoryIdentity(0, name, 1))
+        }
+        /*
+         * We want to return a List of Category not a MutableList.
+         * We also want to source using the CategoryIdentityComparator
+         */
+        categoryIdentityList.sortWith(CategoryIdentityComparator)
+        return(categoryIdentityList)
+    }
+
+    suspend fun symbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): Flow<List<SymbolIdentity>> = flow {
+        val symbolIdentityList: MutableList<SymbolIdentity> = mutableListOf()
+        /*
+         * If we want the common list then go get it
+         */
+        if ( dbMode != DB_LOCAL_ONLY) {
+            val common = commonSymbolIdentitiesByCategoryIdentity(categoryIdentity)
+            /*
+             * All the common categories should go onto the final list
+             */
+            symbolIdentityList.addAll(common)
+        }
+        /*
+         * If we want the local list then go get it
+         */
+        if ( dbMode != DB_COMMON_ONLY) {
+            val locals = localSymbolIdentitiesByCategoryIdentity(categoryIdentity)
+            /*
+             * We only want to add local categories that don't have the
+             * same name as a common category that is already on the list
+             */
+            for(local in locals.iterator()) {
+                /*
+                 * Walk through all the local catagoeirs and check the name against all
+                 * the common categories already on the list
+                 */
+                 loop@ for(symbolIdentity in symbolIdentityList.iterator()) {
+                     if (local.name == symbolIdentity.name) {
+                         /*
+                          * There is already a common categoryIdentity on the list so
+                          * don't add the local identity.
+                          * Go to the next local identity
+                          */
+                          break@loop
+                        }
+                     /*
+                      * If I made it to here the local name doesn't match any common names.
+                      * So, add it to the list.
+                      */
+                     symbolIdentityList.add(local)
+                 }
+            }
+        }
+        /*
+         * Now the list has been created so sort it
+         */
+        symbolIdentityList.sortWith(SymbolIdentityComparator)
+        /*
+         * We want to pass back a List not a MutableList
+         */
+        emit(symbolIdentityList.toList())
+    }
+
+    private suspend fun commonSymbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): List<SymbolIdentity> {
+            var commons: List<CommonSymbol>
             /*
              * The All option will have an id of 1 and local will be 0.
              * If that is the option then get all symbols.
@@ -132,27 +235,160 @@ class DreamRepository(val application: DreamApplication) {
                 /*
                  * It is a request for All symbols so use getAllSymbols
                  */
-                commonSearch = commonDatabase.commonSymbolDao().getAllSymbols()
+                commons = commonDatabase.commonSymbolDao().getAllSymbols()
+            } else {
+                commons =
+                    commonDatabase.commonSymbolDao().getSymbolNamesByCategoryId(categoryIdentity.id)
             }
 
-            commonSearch.collect() {
-                val symbolList: MutableList<SymbolIdentity> = mutableListOf()
+            val symbolList: MutableList<SymbolIdentity> = mutableListOf()
+            /*
+             * For each element use the CommonCategory information to create a Category item
+             * Remember we are getting a List of Category items for each it and so we need to
+             * look at each Category in it
+              */
+             commons.forEach() {
+                 /*
+                  * Create a Symbol with the values from the CommonSymbol
+                  * Add the new Symbol to the List of Symbols to be returned
+                  */
+                 symbolList.add(SymbolIdentity(it.id, it.name, it.local))
+             }
+             symbolList.sortWith(SymbolIdentityComparator)
+             return(symbolList.toList())
+        }
+
+    private suspend fun localSymbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): List<SymbolIdentity> {
+        var locals: List<String>
+        /*
+         * The All option will have an id of 1 and local will be 0.
+         * If that is the option then get all symbols.
+         */
+        if (categoryIdentity.id == 1 && categoryIdentity.local == 0) {
+            /*
+             * It is a request for All symbols so use getAllSymbols
+             */
+             locals = localDatabase.localMeaningDao().getAllSymbols()
+        } else {
+            locals =
+                localDatabase.localMeaningDao().getAllSymbolsByCategoryName(categoryIdentity.name)
+        }
+        /*
+         * Now go and get the info from the database
+         */
+        val symbolList: MutableList<SymbolIdentity> = mutableListOf()
+        /*
+         * For each element use the CommonCategory information to create a Category item
+         * Remember we are getting a List of Category items for each it and so we need to
+         * look at each Category in it
+         */
+        locals.forEach { local ->
+            /*
+             * Create a SymbolIdentity
+             * For local symbols id is always 0
+             * For local symbols local is always 1
+             */
+            symbolList.add(SymbolIdentity(0, local, 1))
+        }
+        symbolList.sortWith(SymbolIdentityComparator)
+
+        return(symbolList)
+    }
+
+    fun meaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): Flow<List<Meaning>> =
+        flow {
+            val meaningList: MutableList<Meaning> = mutableListOf()
+            /*
+             * If we want the common list then go get it
+             */
+            if ( dbMode != DB_LOCAL_ONLY) {
+                val commons = commonMeaningsBySymbolIdentity(symbolIdentity)
                 /*
-                 * For each element use the CommonCategory information to create a Category item
-                 * Remember we are getting a List of Category items for each it and so we need to
-                 * look at each Category in it
+                 * All the common categories should go onto the final list
                  */
-                it.forEach {
-                    /*
-                     * Create a Symbol with the values from the CommonSymbol
-                     * Add the new Symbol to the List of Symbols to be returned
-                     */
-                    symbolList.add(SymbolIdentity(it.id, it.name, it.local))
-                }
-                symbolList.sortWith(SymbolIdentityComparator)
-
-                emit(symbolList.toList())
+                meaningList.addAll(commons)
             }
+            /*
+             * If we want the local list then go get it
+             */
+            if ( dbMode != DB_COMMON_ONLY) {
+                val locals = localMeaningsBySymbolIdentity(symbolIdentity)
+                /*
+                 * Add the meanings from local to the list
+                 */
+                for(local in locals.iterator()) {
+                    meaningList.add(local)
+                }
+            }
+            /*
+             * We want to pass back a List not a MutableList
+             */
+            emit(meaningList.toList())
+        }
+
+    private fun commonMeaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): MutableList<Meaning> {
+        val meaningList: MutableList<Meaning> = mutableListOf()
+        /*
+         * For the Common Datbase we use the symbolIdentity's id
+         */
+        val commons = commonDatabase.commonMeaningDao().getMeaningsBySymbolId(symbolIdentity.id)
+        /*
+         * For each element use the CommonCategory information to create a Category item
+         * Remember we are getting a List of Category items for each it and so we need to
+         * look at each Category in it
+         */
+         commons.forEach { common ->
+             /*
+              * Create a Meaning with the values from the CommonMeaning
+              * Add the new Category to the List of Category's to be returned
+              */
+             meaningList.add(
+                 Meaning(
+                     /*
+                      * The Meaning doesn't have a name. Just an id and whether it is local.
+                      */
+                     MeaningIdentity(common.id, common.local),
+                     common.reference,
+                     common.contents,
+                     /*
+                      * The common meanings were gotten from the symbolIdentity input parameter.
+                      * So we know that is the symbolIdentity that belongs with the meaning.
+                      */
+                     symbolIdentity
+                 )
+             )
+         }
+        /*
+         * We want to return a List of Categoroy not a MutableList.
+         * Since this is the last operation of collect it will be this value that is returned???
+         */
+        return(meaningList)
+    }
+
+    private fun localMeaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): MutableList<Meaning> {
+        val meaningsList: MutableList<Meaning> = mutableListOf()
+        val meanings = localDatabase.localMeaningDao().getMeaningsBySymbolName(symbolIdentity.name)
+        /*
+         * For each element use the CommonCategory information to create a Category item
+         * Remember we are getting a List of Category items for each it and so we need to
+         * look at each Category in it
+         */
+        meanings.forEach { meaning ->
+            /*
+             * Create a Category Identity
+             * Local Databases always have an id of 0 and a local value of 1
+             */
+            meaningsList.add(Meaning(
+                MeaningIdentity(meaning.id, meaning.local),
+                meaning.reference,
+                meaning.contents,
+                symbolIdentity))
+            }
+            /*
+             * We want to return a List of Category not a MutableList.
+             * We also want to source using the CategoryIdentityComparator
+             */
+            return(meaningsList)
         }
 }
 

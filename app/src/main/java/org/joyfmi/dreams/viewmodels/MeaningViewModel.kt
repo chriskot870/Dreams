@@ -16,7 +16,7 @@ class MeaningViewModel(private val repository: DreamRepository): ViewModel() {
 
     //fun getMeaningBySymbolId(): Flow<List<Meaning>>? = repository.getAllCategories()
 
-    fun getMeaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): Flow<List<Meaning>> = repository.getMeaningsBySymbolIdentity(symbolIdentity)
+    fun getMeaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): Flow<List<Meaning>> = repository.meaningsBySymbolIdentity(symbolIdentity)
 
     fun loadSymbolMeanings(symbolIdentity: SymbolIdentity, meaningAdapter: MeaningListAdapter) {
         /*

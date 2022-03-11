@@ -8,11 +8,12 @@ import androidx.room.RoomDatabase
 @Database(entities = arrayOf(LocalMeaning::class), version = 1, exportSchema = false)
 abstract class LocalDatabase : RoomDatabase() {
 
-    abstract fun localMeaning(): LocalMeaningDao
+    abstract fun localMeaningDao(): LocalMeaningDao
 
     companion object {
         @Volatile
         private var INSTANCE: LocalDatabase? = null
+
         fun getDatabase(context: Context): LocalDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
