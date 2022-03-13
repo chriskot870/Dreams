@@ -1,5 +1,6 @@
 package org.joyfmi.dreams.viewmodels
 
+import android.widget.ArrayAdapter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -7,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.repository.DreamRepository
+import org.joyfmi.dreams.repository.SymbolIdentity
 import org.joyfmi.dreams.ui.CategoryListAdapter
 
 class CategoryViewModel(private val repository:DreamRepository): ViewModel() {
@@ -25,6 +27,19 @@ class CategoryViewModel(private val repository:DreamRepository): ViewModel() {
                  */
                 withContext(Dispatchers.Main) {
                     categoryAdapter.submitList(it)
+                }
+            }
+        }
+    }
+    fun loadSymbolList(symbolNameAdapter: ArrayAdapter<SymbolIdentity>) {
+        /*
+         * We are going to do some I/O so launch a coroutine to do the work
+         */
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.symbolIdentitiesFlow().collect {
+                withContext(Dispatchers.Main) {
+                    symbolNameAdapter.clear()
+                    symbolNameAdapter.addAll(it)
                 }
             }
         }

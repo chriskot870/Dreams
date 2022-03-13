@@ -14,6 +14,12 @@
         <action
             android:id="@+id/action_categoryFragment_to_symbolFragment"
             app:destination="@id/SymbolFragment" />
+        <argument
+            android:name="symbolName"
+            app:argType="org.joyfmi.dreams.repository.SymbolIdentity" />
+        <action
+            android:id="@+id/action_CategoryFragment_to_MeaningFragment"
+            app:destination="@id/MeaningFragment" />
     </fragment>
     <fragment
         android:id="@+id/SymbolFragment"

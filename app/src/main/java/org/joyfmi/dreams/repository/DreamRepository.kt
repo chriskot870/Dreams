@@ -145,7 +145,31 @@ class DreamRepository(application: DreamApplication) {
         return(categoryIdentityList)
     }
 
-    suspend fun symbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): Flow<List<SymbolIdentity>> = flow {
+    suspend fun getAllSymbolNamesFlow(): Flow<Array<String>> = flow {
+        val symbolNames: MutableList<String> = mutableListOf()
+        val symbolList = symbolIdentities()
+        symbolList.forEach { symbolIdentity ->
+            symbolNames.add(symbolIdentity.toString())
+        }
+        emit(symbolNames.toTypedArray())
+    }
+
+    suspend fun symbolIdentitiesFlow(
+        categoryIdentity: CategoryIdentity? = null
+        ): Flow<List<SymbolIdentity>> = flow {
+
+        val symbolList = symbolIdentities(categoryIdentity)
+        emit(symbolList)
+    }
+    /*
+     * Get the symbolIdentites.
+     * If no parameter is specified assume you want all of them.
+     * If a CategoryIdentity is provided use it to filter the symbols that have that as a category
+     */
+    suspend fun symbolIdentities(
+        categoryIdentity: CategoryIdentity? = null
+        ): List<SymbolIdentity> {
+
         val symbolIdentityList: MutableList<SymbolIdentity> = mutableListOf()
         /*
          * If we want the common list then go get it
@@ -195,16 +219,16 @@ class DreamRepository(application: DreamApplication) {
         /*
          * We want to pass back a List not a MutableList
          */
-        emit(symbolIdentityList.toList())
+        return(symbolIdentityList.toList())
     }
 
-    private suspend fun commonSymbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): List<SymbolIdentity> {
+    private suspend fun commonSymbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity?): List<SymbolIdentity> {
         /*
          * The All option will have an id of 1 and local will be 0.
          * If that is the option then get all symbols.
          */
         val commons: List<CommonSymbol> =
-            if (categoryIdentity.id == 1 && categoryIdentity.local ==0) {
+            if (categoryIdentity == null || (categoryIdentity.id == 1 && categoryIdentity.local ==0)) {
                 /*
                  * It is a request for All symbols so use getAllSymbols
                  */
@@ -230,12 +254,13 @@ class DreamRepository(application: DreamApplication) {
         return(symbolList.toList())
     }
 
-    private suspend fun localSymbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity): List<SymbolIdentity> {
+    private suspend fun localSymbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity?): List<SymbolIdentity> {
         /*
          * The All option will have an id of 1 and local will be 0.
          * If that is the option then get all symbols.
          */
-        val locals: List<String> = if (categoryIdentity.id == 1 && categoryIdentity.local == 0) {
+        val locals: List<String> =
+            if (categoryIdentity == null || (categoryIdentity.id == 1 && categoryIdentity.local == 0)) {
             /*
              * It is a request for All symbols so use getAllSymbols
              */

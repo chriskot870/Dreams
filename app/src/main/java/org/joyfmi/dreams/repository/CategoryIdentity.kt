@@ -10,4 +10,6 @@ data class CategoryIdentity (
     val id: Int,
     val name: String,
     val local: Int
-): Parcelable
+): Parcelable {
+    override fun toString() = "$name"
+}
