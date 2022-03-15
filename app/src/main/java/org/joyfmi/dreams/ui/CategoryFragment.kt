@@ -82,8 +82,10 @@ class CategoryFragment: Fragment(), AdapterView.OnItemClickListener {
             R.layout.symbol_name_item,
             R.id.symbol_name_view)
             //mutableListOf<SymbolIdentity>())
-
-        Log.d("SymbolName Action", "setting SymbolName  Listener")
+        /*
+         * set the threshold to 1 so that single digit numbers will show up and can be selected
+         */
+        symbolNameView.threshold = 1
         symbolNameView.onItemClickListener = this
         symbolNameView.setAdapter(symbolNameAdapter)
         viewModel.loadSymbolList(symbolNameAdapter)
