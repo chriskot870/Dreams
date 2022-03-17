@@ -15,6 +15,7 @@ android:paddingBottom="@dimen/category_item_vertical_padding">
     android:textSize="20sp"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
     android:layout_weight="2" />
 
 </LinearLayout>

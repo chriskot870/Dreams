@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.databinding.MeaningFragmentBinding
+import org.joyfmi.dreams.repository.Symbol
 import org.joyfmi.dreams.repository.SymbolIdentity
 import org.joyfmi.dreams.viewmodels.MeaningViewModel
 import org.joyfmi.dreams.viewmodels.MeaningViewModelFactory
@@ -57,6 +58,10 @@ class MeaningFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("MeaningFragment", "Created View")
+        /*
+         * Build the list of Meanings
+         */
+        binding.textMeaningSymbol.text = String.format("Symbol: %s", symbolIdentity.name)
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val meaningAdapter = MeaningListAdapter()

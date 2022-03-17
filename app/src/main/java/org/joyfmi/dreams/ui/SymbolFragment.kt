@@ -19,6 +19,7 @@ import org.joyfmi.dreams.databinding.SymbolFragmentBinding
 import org.joyfmi.dreams.viewmodels.SymbolViewModel
 import org.joyfmi.dreams.viewmodels.SymbolViewModelFactory
 import org.joyfmi.dreams.DreamApplication
+import org.joyfmi.dreams.R
 import org.joyfmi.dreams.repository.CategoryIdentity
 
 class SymbolFragment: Fragment() {
@@ -58,6 +59,14 @@ class SymbolFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("SymbolFragment", "View Created")
+        /*
+         * Fill out the header line for the Symbol page
+         */
+        binding.textCategorySymbolsTitle.text =
+            String.format("Category: %s", categoryIdentity.name)
+        /*
+         * Load the recycler view to list symbols
+         */
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val symbolAdapter = SymbolListAdapter {
