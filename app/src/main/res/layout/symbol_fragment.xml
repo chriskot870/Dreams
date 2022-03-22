@@ -14,7 +14,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Select a Symbol from the List"
+            android:text="@string/symbol_select_prompt"
             android:textSize="23sp" />
 
         <androidx.recyclerview.widget.RecyclerView

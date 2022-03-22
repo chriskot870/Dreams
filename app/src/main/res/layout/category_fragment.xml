@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Enter a Symbol or Select a Category from the List"
+        android:text="@string/category_enter_symbol"
         android:textSize="15sp"/>
 
     <AutoCompleteTextView
@@ -24,14 +24,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:hint="Enter a Symbol Name"/>
+        android:hint="@string/category_autocomplete_hint"/>
 
     <TextView
         android:id="@+id/category_list_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Category List"
+        android:text="@string/category_list_title"
         android:textSize="23sp"/>
 
     <androidx.recyclerview.widget.RecyclerView
