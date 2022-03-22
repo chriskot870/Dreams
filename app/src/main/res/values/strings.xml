@@ -6,7 +6,7 @@
     <string name="symbol_hint">Enter a Symbol</string>
     <string name="category_hint">Enter New or Select Existing Category</string>
     <string name="reference_hint">Enter a Reference</string>
-    <string name="definition_hint">Enter the Defintion(s) from the Reference</string>
+    <string name="definition_hint">Enter the Definition(s) from the Reference</string>
     <string name="category_enter_symbol">Enter a Symbol or Select a Category from the List</string>
     <string name="category_autocomplete_hint">Enter a Symbol Name</string>
     <string name="category_list_title">Category List</string>
