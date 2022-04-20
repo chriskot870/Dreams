@@ -1,11 +1,14 @@
 package org.joyfmi.dreams.repository
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.database.common.CommonDatabase
 import org.joyfmi.dreams.database.common.CommonSymbol
 import org.joyfmi.dreams.database.local.LocalDatabase
+import org.joyfmi.dreams.database.local.LocalMeaning
 
 const val DB_COMMON_ONLY = 0
 const val DB_LOCAL_ONLY = 1
@@ -48,55 +51,64 @@ class DreamRepository(application: DreamApplication) {
      * ViewModel and the Databases.
      */
 
-    suspend fun getAllCategories(): Flow<List<CategoryIdentity>> = flow {
-        val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
+    suspend fun getAllCategoriesFlow(): Flow<List<CategoryIdentity>> = flow {
+        val catIdList = getAllCategories()
+        emit(catIdList)
+    }
+
+    suspend fun getAllCategories(): List<CategoryIdentity> {
         /*
-         * If we want the common list then go get it
+         * We need to go into the main thread in order to update the symbolAdapter List
          */
-        if (dbMode != DB_LOCAL_ONLY) {
-            val common = getCommonCategories()
-            categoryIdentityList.addAll(common)
-        }
-        /*
-         * If we want the local list then go get it
-         */
-        if (dbMode != DB_COMMON_ONLY) {
-            val local = getAllLocalCategories()
+        return withContext(Dispatchers.IO) {
+            val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
             /*
-             * We only want to add local categories that don't have the
-             * same name as a common category that is already on the list
+             * If we want the common list then go get it
              */
-            for (localIdentity in local.iterator()) {
+            if (dbMode != DB_LOCAL_ONLY) {
+                val common = getCommonCategories()
+                categoryIdentityList.addAll(common)
+            }
+            /*
+             * If we want the local list then go get it
+             */
+            if (dbMode != DB_COMMON_ONLY) {
+                val local = getAllLocalCategories()
                 /*
-                 * Walk through all the local categories and check the name against all
-                 * the common categories already on the list
+                 * We only want to add local categories that don't have the
+                 * same name as a common category that is already on the list
                  */
-                for (commonIdentity in categoryIdentityList.iterator()) {
-                    if (commonIdentity.name == localIdentity.name) {
-                        /*
-                         * There is already a common categoryIdentity on the list so
-                         * don't add the local identity.
-                         * Go to the next local identity
-                         */
-                        break
-                    }
+                for (localIdentity in local.iterator()) {
                     /*
-                     * If I made it to here the local name doesn't match any common names.
-                     * So, add it to the list.
+                     * Walk through all the local categories and check the name against all
+                     * the common categories already on the list
                      */
-                    categoryIdentityList.add(localIdentity)
+                    for (commonIdentity in categoryIdentityList.iterator()) {
+                        if (commonIdentity.name == localIdentity.name) {
+                            /*
+                             * There is already a common categoryIdentity on the list so
+                             * don't add the local identity.
+                             * Go to the next local identity
+                             */
+                            break
+                        }
+                        /*
+                         * If I made it to here the local name doesn't match any common names.
+                         * So, add it to the list.
+                         */
+                        categoryIdentityList.add(localIdentity)
+                    }
                 }
             }
+            /*
+             * Now the list has been created so sort it
+             */
+            categoryIdentityList.sortWith(CategoryIdentityComparator)
+            /*
+             * We want to pass back a List not a MutableList
+             */
+            categoryIdentityList.toList()
         }
-
-        /*
-         * Now the list has been created so sort it
-         */
-        categoryIdentityList.sortWith(CategoryIdentityComparator)
-        /*
-         * We want to pass back a List not a MutableList
-         */
-        emit(categoryIdentityList.toList())
     }
 
     private suspend fun getCommonCategories(): MutableList<CategoryIdentity> {
@@ -154,6 +166,21 @@ class DreamRepository(application: DreamApplication) {
         emit(symbolNames.toTypedArray())
     }
 
+    suspend fun getAllSymbolNames():Array<String> {
+        /*
+         * Run this in the Dispatchers.IO scope
+         * This will return the symbolNames.toTypedArray()
+         */
+        return withContext(Dispatchers.IO) {
+            val symbolNames: MutableList<String> = mutableListOf()
+            val symbolList = symbolIdentities()
+            symbolList.forEach { symbolIdentity ->
+                symbolNames.add(symbolIdentity.toString())
+            }
+            symbolNames.toTypedArray()
+        }
+    }
+
     suspend fun symbolIdentitiesFlow(
         categoryIdentity: CategoryIdentity? = null
         ): Flow<List<SymbolIdentity>> = flow {
@@ -170,56 +197,58 @@ class DreamRepository(application: DreamApplication) {
         categoryIdentity: CategoryIdentity? = null
         ): List<SymbolIdentity> {
 
-        val symbolIdentityList: MutableList<SymbolIdentity> = mutableListOf()
-        /*
-         * If we want the common list then go get it
-         */
-        if ( dbMode != DB_LOCAL_ONLY) {
-            val common = commonSymbolIdentitiesByCategoryIdentity(categoryIdentity)
+        return withContext(Dispatchers.IO) {
+            val symbolIdentityList: MutableList<SymbolIdentity> = mutableListOf()
             /*
-             * All the common categories should go onto the final list
+             * If we want the common list then go get it
              */
-            symbolIdentityList.addAll(common)
-        }
-        /*
-         * If we want the local list then go get it
-         */
-        if ( dbMode != DB_COMMON_ONLY) {
-            val locals = localSymbolIdentitiesByCategoryIdentity(categoryIdentity)
-            /*
-             * We only want to add local categories that don't have the
-             * same name as a common category that is already on the list
-             */
-            for(local in locals.iterator()) {
+            if (dbMode != DB_LOCAL_ONLY) {
+                val common = commonSymbolIdentitiesByCategoryIdentity(categoryIdentity)
                 /*
-                 * Walk through all the local categories and check the name against all
-                 * the common categories already on the list
+                 * All the common categories should go onto the final list
                  */
-                 for(symbolIdentity in symbolIdentityList.iterator()) {
-                     if (local.name == symbolIdentity.name) {
-                         /*
-                          * There is already a common categoryIdentity on the list so
-                          * don't add the local identity.
-                          * Go to the next local identity
-                          */
-                          break
-                        }
-                     /*
-                      * If I made it to here the local name doesn't match any common names.
-                      * So, add it to the list.
-                      */
-                     symbolIdentityList.add(local)
-                 }
+                symbolIdentityList.addAll(common)
             }
+            /*
+             * If we want the local list then go get it
+             */
+            if (dbMode != DB_COMMON_ONLY) {
+                val locals = localSymbolIdentitiesByCategoryIdentity(categoryIdentity)
+                /*
+                 * We only want to add local categories that don't have the
+                 * same name as a common category that is already on the list
+                 */
+                for (local in locals.iterator()) {
+                    /*
+                     * Walk through all the local categories and check the name against all
+                     * the common categories already on the list
+                     */
+                    for (symbolIdentity in symbolIdentityList.iterator()) {
+                        if (local.name == symbolIdentity.name) {
+                            /*
+                             * There is already a common categoryIdentity on the list so
+                             * don't add the local identity.
+                             * Go to the next local identity
+                             */
+                            break
+                        }
+                        /*
+                         * If I made it to here the local name doesn't match any common names.
+                         * So, add it to the list.
+                         */
+                        symbolIdentityList.add(local)
+                    }
+                }
+            }
+            /*
+             * Now the list has been created so sort it
+             */
+            symbolIdentityList.sortWith(SymbolIdentityComparator)
+            /*
+             * We want to pass back a List not a MutableList
+             */
+            symbolIdentityList.toList()
         }
-        /*
-         * Now the list has been created so sort it
-         */
-        symbolIdentityList.sortWith(SymbolIdentityComparator)
-        /*
-         * We want to pass back a List not a MutableList
-         */
-        return(symbolIdentityList.toList())
     }
 
     private suspend fun commonSymbolIdentitiesByCategoryIdentity(categoryIdentity: CategoryIdentity?): List<SymbolIdentity> {
@@ -290,13 +319,19 @@ class DreamRepository(application: DreamApplication) {
         return(symbolList)
     }
 
-    suspend fun meaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): Flow<List<Meaning>> =
+    suspend fun meaningsBySymbolIdentityFlow(symbolIdentity: SymbolIdentity): Flow<List<Meaning>> =
         flow {
+            val meaningList = meaningsBySymbolIdentity(symbolIdentity)
+            emit(meaningList)
+        }
+
+    suspend fun meaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): List<Meaning> {
+        return withContext(Dispatchers.IO) {
             val meaningList: MutableList<Meaning> = mutableListOf()
             /*
              * If we want the common list then go get it
              */
-            if ( dbMode != DB_LOCAL_ONLY) {
+            if (dbMode != DB_LOCAL_ONLY) {
                 val commons = commonMeaningsBySymbolIdentity(symbolIdentity)
                 /*
                  * All the common categories should go onto the final list
@@ -306,20 +341,21 @@ class DreamRepository(application: DreamApplication) {
             /*
              * If we want the local list then go get it
              */
-            if ( dbMode != DB_COMMON_ONLY) {
+            if (dbMode != DB_COMMON_ONLY) {
                 val locals = localMeaningsBySymbolIdentity(symbolIdentity)
                 /*
                  * Add the meanings from local to the list
                  */
-                for(local in locals.iterator()) {
+                for (local in locals.iterator()) {
                     meaningList.add(local)
                 }
             }
             /*
              * We want to pass back a List not a MutableList
              */
-            emit(meaningList.toList())
+            meaningList.toList()
         }
+    }
 
     private suspend fun commonMeaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): MutableList<Meaning> {
         val meaningList: MutableList<Meaning> = mutableListOf()
@@ -384,6 +420,18 @@ class DreamRepository(application: DreamApplication) {
          * We also want to source using the CategoryIdentityComparator
          */
         return(meaningsList)
+    }
+
+    suspend fun localInsert(newRecord: LocalMeaning) {
+        localDatabase.localMeaningDao().localInsert(newRecord)
+    }
+
+    suspend fun localUpdate(record: LocalMeaning) {
+        localDatabase.localMeaningDao().localUpdate(record)
+    }
+
+    suspend fun localDelete(record: LocalMeaning) {
+        localDatabase.localMeaningDao().localDelete(record)
     }
 
     fun dbCommonAndLocal() {

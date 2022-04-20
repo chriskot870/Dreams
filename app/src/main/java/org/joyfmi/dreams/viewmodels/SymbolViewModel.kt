@@ -16,15 +16,9 @@ class SymbolViewModel(private val repository: DreamRepository): ViewModel() {
         /*
          * We are going to do some I/O so launch a coroutine to do the work
          */
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.symbolIdentitiesFlow(categoryIdentity).collect { symbolList ->
-                /*
-                 * We need to go into the main thread in order to update the symbolAdapter List
-                 */
-                withContext(Dispatchers.Main) {
-                    symbolAdapter.submitList(symbolList)
-                }
-            }
+        viewModelScope.launch() {
+            val symbolList = repository.symbolIdentities(categoryIdentity)
+            symbolAdapter.submitList(symbolList)
         }
     }
 }

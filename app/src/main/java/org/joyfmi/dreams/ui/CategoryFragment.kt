@@ -51,7 +51,6 @@ class CategoryFragment: Fragment(), AdapterView.OnItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("NoStart", "CategoryFragment: onCreateView")
         _binding = CategoryFragmentBinding.inflate(inflater, container, false)
         val view = binding.root
         return view

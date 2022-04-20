@@ -10,7 +10,7 @@ import org.joyfmi.dreams.databinding.CategoryItemBinding
 
 class CategoryListAdapter(
     private val onItemClicked: (CategoryIdentity) -> Unit
-) : ListAdapter<CategoryIdentity, CategoryListAdapter.CategoryViewHolder>(DiffCallback) {
+): ListAdapter<CategoryIdentity, CategoryListAdapter.CategoryViewHolder>(DiffCallback) {
 
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<CategoryIdentity>() {

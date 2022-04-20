@@ -3,13 +3,15 @@
     <string name="category_header">Categories</string>
     <string name="symbol_header">Symbols</string>
     <string name="meaning_header">Meaning</string>
-    <string name="symbol_hint">Enter a Symbol</string>
-    <string name="category_hint">Enter New or Select Existing Category</string>
-    <string name="reference_hint">Enter a Reference</string>
-    <string name="definition_hint">Enter the Definition(s) from the Reference</string>
+    <string name="add_symbol_symbol_hint">Enter a Symbol</string>
+    <string name="add_symbol_category_hint">Enter New or Select Existing Category</string>
+    <string name="add_symbol_reference_hint">Enter a Reference</string>
+    <string name="add_symbol_definition_hint">Enter the Definition(s) from the Reference</string>
     <string name="category_enter_symbol">Enter a Symbol or Select a Category from the List</string>
     <string name="category_autocomplete_hint">Enter a Symbol Name</string>
     <string name="category_list_title">Category List</string>
     <string name="symbol_meaning_title">Symbol Meaning</string>
     <string name="symbol_select_prompt">Select a Symbol from the List</string>
+    <string name="add_symbol_instructions">Fill out all the fields then click on the Submit button to add new Symbol to the Local Database</string>
+    <string name="add_symbol_submit_button">SUBMIT</string>
 </resources>

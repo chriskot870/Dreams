@@ -18,30 +18,23 @@ class CategoryViewModel(private val repository:DreamRepository): ViewModel() {
      */
     fun loadCategoryList(categoryAdapter: CategoryListAdapter) {
         /*
-         * We are going to do some I/O so launch a coroutine to do the work
+         * We launch a coroutine. We expect repository.getAllCategories to do all the database
+         * work in to Dispatch.IO. We will be in Main when we get back. So, we can submit the list.
          */
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getAllCategories().collect {
-                /*
-                 * We need to go into the main thread in order to update the symbolAdapter List
-                 */
-                withContext(Dispatchers.Main) {
-                    categoryAdapter.submitList(it)
-                }
-            }
+        viewModelScope.launch() {
+            val categories = repository.getAllCategories()
+            categoryAdapter.submitList(categories)
         }
     }
     fun loadSymbolList(symbolNameAdapter: ArrayAdapter<SymbolIdentity>) {
         /*
-         * We are going to do some I/O so launch a coroutine to do the work
+         * We launch a coroutine. We expect repository.symbolIdentites to do all the database
+         * work in to Dispatch.IO. We will be in Main when we get back. So, we can submit the list.
          */
         viewModelScope.launch(Dispatchers.IO) {
-            repository.symbolIdentitiesFlow().collect {
-                withContext(Dispatchers.Main) {
-                    symbolNameAdapter.clear()
-                    symbolNameAdapter.addAll(it)
-                }
-            }
+            val symbolList = repository.symbolIdentities()
+            symbolNameAdapter.clear()
+            symbolNameAdapter.addAll(symbolList)
         }
     }
 }

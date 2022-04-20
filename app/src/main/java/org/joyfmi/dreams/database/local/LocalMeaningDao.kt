@@ -53,19 +53,19 @@ interface LocalMeaningDao {
      * The OnConflictStrategy.IGNORE strategy ignores a new item if it's primary key is already
      * in the database.
      */
-    //@Insert(onConflict = OnConflictStrategy.IGNORE)
-    //suspend fun localInsert(symbol: LocalSymbol)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun localInsert(record: LocalMeaning)
 
     /*
      * This routine updates an existing symbol entry
      */
-    //@Update
-    //suspend fun localUpdate(symbol: LocalSymbol)
+    @Update(onConflict = OnConflictStrategy.ABORT)
+    suspend fun localUpdate(record: LocalMeaning)
 
     /*
      * This routine deletes an existing symbol entry
      */
-    //@Delete
-    //suspend fun localDelete(symbol: LocalSymbol)
+    @Delete
+    suspend fun localDelete(record: LocalMeaning)
 
 }

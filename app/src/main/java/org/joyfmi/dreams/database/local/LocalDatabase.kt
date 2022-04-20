@@ -19,7 +19,7 @@ abstract class LocalDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                         context.applicationContext,
                         LocalDatabase::class.java,
-                        "local_database"
+                        "local_database.db"
                     )
                     .fallbackToDestructiveMigration()
                     .build()

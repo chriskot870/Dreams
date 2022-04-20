@@ -17,17 +17,13 @@ class MeaningViewModel(private val repository: DreamRepository): ViewModel() {
 
     fun loadSymbolMeanings(symbolIdentity: SymbolIdentity, meaningAdapter: MeaningListAdapter) {
         /*
-         * We are going to do some I/O so launch a coroutine to do the work
+         * We launch a coroutine to get the meanings for the Symbol. The meaningsBySymbolIdentity()
+         * will use withContext(Dispacthers.IO). WHen it comes back we will be in main and we can
+         * submit the list.
          */
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.meaningsBySymbolIdentity(symbolIdentity).collect {
-                /*
-                 * We need to go into the main thread in order to update the meaningAdapter List
-                 */
-                withContext(Dispatchers.Main) {
-                    meaningAdapter.submitList(it)
-                }
-            }
+        viewModelScope.launch() {
+            val meaningList = repository.meaningsBySymbolIdentity(symbolIdentity)
+            meaningAdapter.submitList(meaningList)
         }
     }
 }
