@@ -1,10 +1,7 @@
 package org.joyfmi.dreams.ui
 
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -118,5 +115,4 @@ class CategoryFragment: Fragment(), AdapterView.OnItemClickListener {
         val categoryView = binding.root
         categoryView.findNavController().navigate(action)
     }
-
 }
