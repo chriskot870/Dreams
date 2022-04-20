@@ -52,11 +52,6 @@ class DreamRepository(application: DreamApplication) {
      * ViewModel and the Databases.
      */
 
-    suspend fun getAllCategoriesFlow(): Flow<List<CategoryIdentity>> = flow {
-        val catIdList = getAllCategories()
-        emit(catIdList)
-    }
-
     suspend fun getAllCategories(ioDispatcher: CoroutineDispatcher = Dispatchers.IO): List<CategoryIdentity> {
         /*
          * We need to go into the main thread in order to update the symbolAdapter List
@@ -158,15 +153,6 @@ class DreamRepository(application: DreamApplication) {
         return(categoryIdentityList)
     }
 
-    suspend fun getAllSymbolNamesFlow(): Flow<Array<String>> = flow {
-        val symbolNames: MutableList<String> = mutableListOf()
-        val symbolList = symbolIdentities()
-        symbolList.forEach { symbolIdentity ->
-            symbolNames.add(symbolIdentity.toString())
-        }
-        emit(symbolNames.toTypedArray())
-    }
-
     suspend fun getAllSymbolNames(ioDispatcher: CoroutineDispatcher = Dispatchers.IO):Array<String> {
         /*
          * Run this in the Dispatchers.IO scope
@@ -182,13 +168,6 @@ class DreamRepository(application: DreamApplication) {
         }
     }
 
-    suspend fun symbolIdentitiesFlow(
-        categoryIdentity: CategoryIdentity? = null
-        ): Flow<List<SymbolIdentity>> = flow {
-
-        val symbolList = symbolIdentities(categoryIdentity)
-        emit(symbolList)
-    }
     /*
      * Get the symbolIdentites.
      * If no parameter is specified assume you want all of them.
@@ -320,12 +299,6 @@ class DreamRepository(application: DreamApplication) {
 
         return(symbolList)
     }
-
-    suspend fun meaningsBySymbolIdentityFlow(symbolIdentity: SymbolIdentity): Flow<List<Meaning>> =
-        flow {
-            val meaningList = meaningsBySymbolIdentity(symbolIdentity)
-            emit(meaningList)
-        }
 
     suspend fun meaningsBySymbolIdentity(
         symbolIdentity: SymbolIdentity,
