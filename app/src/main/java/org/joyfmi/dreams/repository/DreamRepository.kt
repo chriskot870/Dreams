@@ -1,5 +1,6 @@
 package org.joyfmi.dreams.repository
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -56,11 +57,11 @@ class DreamRepository(application: DreamApplication) {
         emit(catIdList)
     }
 
-    suspend fun getAllCategories(): List<CategoryIdentity> {
+    suspend fun getAllCategories(ioDispatcher: CoroutineDispatcher = Dispatchers.IO): List<CategoryIdentity> {
         /*
          * We need to go into the main thread in order to update the symbolAdapter List
          */
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
             /*
              * If we want the common list then go get it
@@ -166,12 +167,12 @@ class DreamRepository(application: DreamApplication) {
         emit(symbolNames.toTypedArray())
     }
 
-    suspend fun getAllSymbolNames():Array<String> {
+    suspend fun getAllSymbolNames(ioDispatcher: CoroutineDispatcher = Dispatchers.IO):Array<String> {
         /*
          * Run this in the Dispatchers.IO scope
          * This will return the symbolNames.toTypedArray()
          */
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             val symbolNames: MutableList<String> = mutableListOf()
             val symbolList = symbolIdentities()
             symbolList.forEach { symbolIdentity ->
@@ -194,10 +195,11 @@ class DreamRepository(application: DreamApplication) {
      * If a CategoryIdentity is provided use it to filter the symbols that have that as a category
      */
     suspend fun symbolIdentities(
-        categoryIdentity: CategoryIdentity? = null
+        categoryIdentity: CategoryIdentity? = null,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO
         ): List<SymbolIdentity> {
 
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             val symbolIdentityList: MutableList<SymbolIdentity> = mutableListOf()
             /*
              * If we want the common list then go get it
@@ -325,8 +327,11 @@ class DreamRepository(application: DreamApplication) {
             emit(meaningList)
         }
 
-    suspend fun meaningsBySymbolIdentity(symbolIdentity: SymbolIdentity): List<Meaning> {
-        return withContext(Dispatchers.IO) {
+    suspend fun meaningsBySymbolIdentity(
+        symbolIdentity: SymbolIdentity,
+        ioDispatcher: CoroutineDispatcher = Dispatchers.IO): List<Meaning> {
+
+        return withContext(ioDispatcher) {
             val meaningList: MutableList<Meaning> = mutableListOf()
             /*
              * If we want the common list then go get it
