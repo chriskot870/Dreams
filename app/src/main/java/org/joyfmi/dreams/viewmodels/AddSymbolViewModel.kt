@@ -30,7 +30,7 @@ class AddSymbolViewModel (private val repository:DreamRepository): ViewModel() {
         /*
          * We are going to do some I/O so launch a coroutine to do the work
          */
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch() {
             val categories = repository.getAllCategories()
             arrayAdapter.addAll(categories)
         }
