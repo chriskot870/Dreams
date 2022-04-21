@@ -41,4 +41,13 @@
             android:name="symbolIdentity"
             app:argType="org.joyfmi.dreams.repository.SymbolIdentity" />
     </fragment>
+    <fragment
+        android:id="@+id/AddSymbolFragment"
+        android:name="org.joyfmi.dreams.ui.AddSymbolFragment"
+        android:label="AddSymbol" >
+    </fragment>
+    <action
+        android:id="@+id/action_global_AddSymbolFragment"
+        app:destination="@id/AddSymbolFragment" >
+    </action>
 </navigation>

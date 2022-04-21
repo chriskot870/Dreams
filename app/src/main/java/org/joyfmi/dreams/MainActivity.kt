@@ -6,15 +6,21 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.onNavDestinationSelected
+import org.joyfmi.dreams.ui.AddSymbolFragment
 
 class MainActivity : AppCompatActivity() {
+    lateinit var navHostFragment: NavHostFragment
+    lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("NoStart", "MainActivity onCreate 1")
         super.onCreate(savedInstanceState)
-        Log.d("NoStart", "MainActivity onCreate 2")
         setContentView(R.layout.activity_main)
-        Log.d("NoStart", "MainActivity onCreate 3")
+        navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -25,8 +31,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.new_symbol_menu_item -> {
-                Toast.makeText(applicationContext, "click on New Symbol", Toast.LENGTH_LONG).show()
+            R.id.AddSymbolFragment -> {
+                navController.navigate(R.id.action_global_AddSymbolFragment)
                 true
             }
             R.id.settings ->{
@@ -36,4 +42,5 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
 }
