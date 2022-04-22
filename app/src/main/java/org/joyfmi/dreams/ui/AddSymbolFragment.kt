@@ -64,7 +64,10 @@ class AddSymbolFragment : Fragment() {
          * spinner needs an adapter with the list of categories in the database
          */
         val categorySpinnerAdapter = ArrayAdapter<CategoryIdentity>(requireContext(), android.R.layout.simple_spinner_item)
-        viewModel.loadCategoryList(categorySpinnerAdapter)
+        /*
+         * Load the SpinnerAdapter with category list and select Miscellaneous as the default option
+         */
+        viewModel.loadCategoryList(categorySpinner, categorySpinnerAdapter, "Miscellaneous")
         categorySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         categorySpinner.setAdapter(categorySpinnerAdapter)
 

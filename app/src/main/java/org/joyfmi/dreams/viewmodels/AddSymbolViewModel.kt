@@ -1,6 +1,8 @@
 package org.joyfmi.dreams.viewmodels
 
 import android.widget.ArrayAdapter
+import android.widget.Spinner
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -26,20 +28,43 @@ class AddSymbolViewModel (private val repository:DreamRepository): ViewModel() {
      * Start a coroutine and get the list of CategoryIdentities
      * This routine is experimental
      */
-    fun loadCategoryList(arrayAdapter: ArrayAdapter<CategoryIdentity>) {
+    fun loadCategoryList(spinner: Spinner, arrayAdapter: ArrayAdapter<CategoryIdentity>, defChoice: String? = null) {
         /*
          * We are going to do some I/O so launch a coroutine to do the work
          */
         viewModelScope.launch() {
-            val categories = repository.getAllCategories()
+            val categories = repository.getAllCategories().toMutableList()
+
+            /*
+             * We want to remove the All value. So look through to find it.
+             */
+            for( n in 0 until categories.size) {
+                    if (categories[n].name.equals("All")) {
+                        categories.removeAt(n)
+                        break
+                    }
+            }
             arrayAdapter.addAll(categories)
+
+           /*
+            * If default is not null then look for it and select it
+            */
+            if ( defChoice != null ) {
+                for ( i in 0 until arrayAdapter.count ) {
+                    if ( arrayAdapter.getItem(i)?.name.equals(defChoice) ) {
+                        spinner.setSelection(i)
+                        break
+                    }
+                }
+            }
         }
     }
     fun submitted(binding: AddSymbolFragmentBinding) {
 
-        AddSymbolViewModel.storage.categoryText = binding.categoryInput.text.toString()
-        AddSymbolViewModel.storage.symbolText = binding.symbolInput.text.toString()
-        AddSymbolViewModel.storage.referenceText = binding.referenceInput.text.toString()
+        storage.categoryText = binding.categoryInput.text.toString()
+        storage.categorySpinnerChoice = binding.categorySpinner.getSelectedItem().toString()
+        storage.symbolText = binding.symbolInput.text.toString()
+        storage.referenceText = binding.referenceInput.text.toString()
         storage.contentsText = binding.meaningInput.text.toString()
         /*
          * The local value is always 1
@@ -74,6 +99,12 @@ class AddSymbolViewModel (private val repository:DreamRepository): ViewModel() {
                 categoryName = storage.categoryText
             }
             /*
+             * Category Name can not be All
+             */
+            if ( categoryName.equals("All") ) {
+
+            }
+            /*
              * Make sure the reference has a value
              */
             if ( storage.referenceText.isEmpty() ) {
@@ -94,8 +125,8 @@ class AddSymbolViewModel (private val repository:DreamRepository): ViewModel() {
              */
             val newrecord = LocalMeaning(
                 0,
-                storage.symbolText,
                 categoryName,
+                storage.symbolText,
                 storage.referenceText,
                 storage.contentsText,
                 local
