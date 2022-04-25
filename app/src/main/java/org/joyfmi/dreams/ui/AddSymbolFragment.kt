@@ -1,5 +1,7 @@
 package org.joyfmi.dreams.ui
 
+import android.app.Dialog
+import android.content.DialogInterface
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -7,6 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import org.joyfmi.dreams.DreamApplication
@@ -76,9 +81,27 @@ class AddSymbolFragment : Fragment() {
 
         submitButton = binding.addSymbolSubmit
         submitButton.setOnClickListener {
-            viewModel.submitted(binding)
+                viewModel.submitted(binding, parentFragmentManager)
         }
 
     }
 
+}
+
+class AddSymbolDialogFragment: DialogFragment() {
+
+    var message: String = "Unknown"
+    var buttonLabel: String = "OK"
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setMessage(message)
+                .setNeutralButton(buttonLabel,
+                    DialogInterface.OnClickListener { dialog, id->
+
+                    })
+            builder.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
 }

@@ -28,7 +28,7 @@ class DreamRepository(application: DreamApplication) {
      * 1: Only want Local Database info
      * 2: Want both Common and Local info
      */
-    private var dbMode: Int = DB_COMMON_ONLY
+    private var dbMode: Int = DB_COMMON_AND_LOCAL
 
     /*
      * We only want one instance of the repository so create a companion object to make sure only
@@ -69,12 +69,12 @@ class DreamRepository(application: DreamApplication) {
              * If we want the local list then go get it
              */
             if (dbMode != DB_COMMON_ONLY) {
-                val local = getAllLocalCategories()
+                val localIdentities = getAllLocalCategories()
                 /*
                  * We only want to add local categories that don't have the
                  * same name as a common category that is already on the list
                  */
-                for (localIdentity in local.iterator()) {
+                outerLoop@ for (localIdentity in localIdentities.iterator()) {
                     /*
                      * Walk through all the local categories and check the name against all
                      * the common categories already on the list
@@ -86,14 +86,17 @@ class DreamRepository(application: DreamApplication) {
                              * don't add the local identity.
                              * Go to the next local identity
                              */
-                            break
+                            continue@outerLoop
                         }
                         /*
                          * If I made it to here the local name doesn't match any common names.
                          * So, add it to the list.
                          */
-                        categoryIdentityList.add(localIdentity)
                     }
+                    /*
+                     * If I get here then there was no match so add the category to the list
+                     */
+                    categoryIdentityList.add(localIdentity)
                 }
             }
             /*
@@ -134,7 +137,12 @@ class DreamRepository(application: DreamApplication) {
 
     private suspend fun getAllLocalCategories(): MutableList<CategoryIdentity> {
         val categoryIdentityList: MutableList<CategoryIdentity> = mutableListOf()
-        val names = localDatabase.localMeaningDao().getAllCategories()
+        lateinit var names: List<String>
+        try {
+            names = localDatabase.localMeaningDao().getAllCategories()
+        } catch( e: Exception) {
+            val error = e.message
+        }
         /*
          * For each element use the LocalCategory information to create a Category item
          */
@@ -193,13 +201,20 @@ class DreamRepository(application: DreamApplication) {
             /*
              * If we want the local list then go get it
              */
+            var localIdentityList: MutableList<SymbolIdentity> = mutableListOf()
             if (dbMode != DB_COMMON_ONLY) {
-                val locals = localSymbolIdentitiesByCategoryIdentity(categoryIdentity)
+                val localList: MutableList<SymbolIdentity> = mutableListOf()
+                lateinit var locals: List<SymbolIdentity>
+                try {
+                    locals = localSymbolIdentitiesByCategoryIdentity(categoryIdentity)
+                } catch(e: Exception) {
+                    val msg = e.message
+                }
                 /*
                  * We only want to add local categories that don't have the
                  * same name as a common category that is already on the list
                  */
-                for (local in locals.iterator()) {
+                symbolCheckLoop@for (local in locals.iterator()) {
                     /*
                      * Walk through all the local categories and check the name against all
                      * the common categories already on the list
@@ -211,16 +226,21 @@ class DreamRepository(application: DreamApplication) {
                              * don't add the local identity.
                              * Go to the next local identity
                              */
-                            break
+                            continue@symbolCheckLoop
                         }
-                        /*
-                         * If I made it to here the local name doesn't match any common names.
-                         * So, add it to the list.
-                         */
-                        symbolIdentityList.add(local)
                     }
+                    /*
+                     * If I made it to here the local name doesn't match any common names.
+                     * So, add it to the list.
+                     */
+                    localList.add(local)
                 }
+                /*
+                 * ANy symbols just on the local list should be added to symbolIdentityList
+                 */
+                symbolIdentityList.addAll(localList)
             }
+
             /*
              * Now the list has been created so sort it
              */
