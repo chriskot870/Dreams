@@ -80,7 +80,7 @@ class DreamRepository(application: DreamApplication) {
                      * the common categories already on the list
                      */
                     for (commonIdentity in categoryIdentityList.iterator()) {
-                        if (commonIdentity.name == localIdentity.name) {
+                        if (commonIdentity.name.equals(localIdentity.name, ignoreCase = true) ) {
                             /*
                              * There is already a common categoryIdentity on the list so
                              * don't add the local identity.
@@ -220,7 +220,7 @@ class DreamRepository(application: DreamApplication) {
                      * the common categories already on the list
                      */
                     for (symbolIdentity in symbolIdentityList.iterator()) {
-                        if (local.name == symbolIdentity.name) {
+                        if (local.name.equals(symbolIdentity.name, ignoreCase = true)) {
                             /*
                              * There is already a common categoryIdentity on the list so
                              * don't add the local identity.
