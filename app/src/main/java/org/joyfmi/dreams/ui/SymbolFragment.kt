@@ -39,7 +39,6 @@ class SymbolFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("SymbolFragment", "Creating")
         arguments?.let {
             categoryIdentity = it.get("categoryIdentity") as CategoryIdentity
         }
@@ -50,7 +49,6 @@ class SymbolFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("SymbolFragment", "Creating View")
         _binding = SymbolFragmentBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
@@ -58,12 +56,10 @@ class SymbolFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("SymbolFragment", "View Created")
         /*
          * Fill out the header line for the Symbol page
          */
-        binding.textCategorySymbolsTitle.text =
-            String.format("Category: %s", categoryIdentity.name)
+        binding.textCategorySymbolsTitle.text = categoryIdentity.name
         /*
          * Load the recycler view to list symbols
          */

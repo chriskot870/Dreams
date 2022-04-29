@@ -41,7 +41,6 @@ class MeaningFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("MeaningFragment", "Creating")
         arguments?.let {
             symbolIdentity = it.get("symbolIdentity") as SymbolIdentity
         }
@@ -52,7 +51,6 @@ class MeaningFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("MeaningFragment", "Creating View")
         _binding = MeaningFragmentBinding.inflate(inflater, container, false)
         val view = binding.root
         return view
@@ -60,11 +58,10 @@ class MeaningFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("MeaningFragment", "Created View")
         /*
          * Build the list of Meanings
          */
-        binding.textMeaningSymbol.text = String.format("Symbol: %s", symbolIdentity.name)
+        binding.textMeaningSymbol.text = symbolIdentity.name
         if ( symbolIdentity.local == DB_LOCAL ) {
             binding.textMeaningSymbol.setTextColor(DreamApplication.localTextColor)
         } else {
