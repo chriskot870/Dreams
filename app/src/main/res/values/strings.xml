@@ -10,10 +10,11 @@
     <string name="category_enter_symbol">Enter a Symbol or Select a Category from the List</string>
     <string name="category_autocomplete_hint">Enter a Symbol Name</string>
     <string name="category_list_title">Category List</string>
-    <string name="symbol_meaning_title">Symbol Meaning</string>
+    <string name="symbol_meaning_title">Symbol Definition</string>
     <string name="symbol_select_prompt">Select a Symbol from the List</string>
     <string name="add_symbol_instructions">Fill out all the fields then click on the Submit button to add new Symbol to the Local Database</string>
     <string name="add_symbol_submit_button">SUBMIT</string>
     <string name="new_symbol_menu_item">Create New Symbol</string>
     <string name="settings">Settings</string>
+    <string name="button_meaning_edit">Edit Definition</string>
 </resources>

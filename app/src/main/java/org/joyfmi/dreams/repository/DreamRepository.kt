@@ -1,5 +1,6 @@
 package org.joyfmi.dreams.repository
 
+import android.graphics.Color
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -10,10 +11,25 @@ import org.joyfmi.dreams.database.common.CommonDatabase
 import org.joyfmi.dreams.database.common.CommonSymbol
 import org.joyfmi.dreams.database.local.LocalDatabase
 import org.joyfmi.dreams.database.local.LocalMeaning
-
+/*
+ * Values to represent the Common or the Local Database
+ */
+const val DB_COMMON = 0
+const val DB_LOCAL = 1
+/*
+ * Define which DB should be used
+ */
 const val DB_COMMON_ONLY = 0
 const val DB_LOCAL_ONLY = 1
 const val DB_COMMON_AND_LOCAL = 2
+/*
+ * It's optional to sort the Local ones first or the Common first
+ * or mix them.
+ * The mode variable determines:
+ */
+const val DB_SORT_MIXED = 0
+const val DB_SORT_COMMON_FIRST = 1
+const val DB_SORT_LOCAL_FIRST = 2
 
 class DreamRepository(application: DreamApplication) {
 
@@ -23,20 +39,21 @@ class DreamRepository(application: DreamApplication) {
     //private val repositoryScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     /*
-     * This sets the mode. The values are the following:
-     * 0: Only want Common Database info
-     * 1: Only want Local Database info
-     * 2: Want both Common and Local info
-     */
-    private var dbMode: Int = DB_COMMON_AND_LOCAL
-
-    /*
      * We only want one instance of the repository so create a companion object to make sure only
      * one instance gets made
      */
     companion object {
         @Volatile
         private var INSTANCE: DreamRepository? = null
+
+        /*
+         * This sets the mode. The values are the following:
+         * 0: Only want Common Database info
+         * 1: Only want Local Database info
+         * 2: Want both Common and Local info
+         */
+        var dbMode: Int = DB_COMMON_AND_LOCAL
+        var dbSortMode: Int = DB_SORT_MIXED
 
         fun getRepository(application: DreamApplication): DreamRepository {
             return INSTANCE ?: synchronized(this) {
@@ -151,7 +168,7 @@ class DreamRepository(application: DreamApplication) {
              * Create a Category Identity
              * Local Databases always have an id of 0 and a local value of 1
              */
-            categoryIdentityList.add(CategoryIdentity(0, name, 1))
+            categoryIdentityList.add(CategoryIdentity(0, name, DB_LOCAL))
         }
         /*
          * We want to return a List of Category not a MutableList.
@@ -258,7 +275,7 @@ class DreamRepository(application: DreamApplication) {
          * If that is the option then get all symbols.
          */
         val commons: List<CommonSymbol> =
-            if (categoryIdentity == null || (categoryIdentity.id == 1 && categoryIdentity.local ==0)) {
+            if (categoryIdentity == null || (categoryIdentity.id == 1 && categoryIdentity.local == DB_COMMON) ) {
                 /*
                  * It is a request for All symbols so use getAllSymbols
                  */
@@ -290,7 +307,7 @@ class DreamRepository(application: DreamApplication) {
          * If that is the option then get all symbols.
          */
         val locals: List<String> =
-            if (categoryIdentity == null || (categoryIdentity.id == 1 && categoryIdentity.local == 0)) {
+            if (categoryIdentity == null || (categoryIdentity.id == 1 && categoryIdentity.local == DB_COMMON)) {
             /*
              * It is a request for All symbols so use getAllSymbols
              */
@@ -313,7 +330,7 @@ class DreamRepository(application: DreamApplication) {
              * For local symbols id is always 0
              * For local symbols local is always 1
              */
-            symbolList.add(SymbolIdentity(0, local, 1))
+            symbolList.add(SymbolIdentity(0, local, DB_LOCAL))
         }
         symbolList.sortWith(SymbolIdentityComparator)
 
@@ -432,22 +449,10 @@ class DreamRepository(application: DreamApplication) {
         localDatabase.localMeaningDao().localDelete(record)
     }
 
-    fun dbCommonAndLocal() {
-        dbMode = DB_COMMON_AND_LOCAL
-    }
-
-    fun dbCommonOnly() {
-        dbMode = DB_COMMON_ONLY
-    }
-
-    fun dbLocalOnly() {
-        dbMode = DB_LOCAL_ONLY
-    }
 }
 
 class SymbolIdentityComparator {
     companion object : Comparator<SymbolIdentity> {
-        var mode: Int = 0
         override fun compare(a: SymbolIdentity, b: SymbolIdentity): Int {
             /*
              * It's optional to sort the Local ones first or the Common first
@@ -457,9 +462,9 @@ class SymbolIdentityComparator {
              * mode = 1 Common First
              * mode = 2 Local First
              */
-            when (mode) {
-                1 -> if (a.local != b.local) return a.local.compareTo(b.local)
-                2 -> if (a.local != b.local) return b.local.compareTo(a.local)
+            when (DreamRepository.dbSortMode) {
+                DB_SORT_COMMON_FIRST -> if (a.local != b.local) return a.local.compareTo(b.local)
+                DB_SORT_LOCAL_FIRST -> if (a.local != b.local) return b.local.compareTo(a.local)
             }
             /*
              * Either Mode is mixed or both have same local value
@@ -476,14 +481,13 @@ class SymbolIdentityComparator {
              * The last possibility is that neither can be converted to a number.
              * So, compare the items directly
              */
-            return a.name.compareTo(b.name)
+            return a.name.compareTo(b.name, ignoreCase = true)
         }
     }
 }
 
 class CategoryIdentityComparator {
     companion object : Comparator<CategoryIdentity> {
-        var mode: Int = 0
         override fun compare(a: CategoryIdentity, b: CategoryIdentity): Int {
             /*
              * It's optional to sort the Local ones first or the Common first
@@ -493,9 +497,9 @@ class CategoryIdentityComparator {
              * mode = 1 Common First
              * mode = 2 Local First
              */
-            when (mode) {
-                1 -> if (a.local != b.local) return a.local.compareTo(b.local)
-                2 -> if (a.local != b.local) return b.local.compareTo(a.local)
+            when (DreamRepository.dbSortMode) {
+                DB_SORT_COMMON_FIRST -> if (a.local != b.local) return a.local.compareTo(b.local)
+                DB_SORT_LOCAL_FIRST -> if (a.local != b.local) return b.local.compareTo(a.local)
             }
             /*
              * Either Mode is mixed or both have same local value
@@ -512,7 +516,7 @@ class CategoryIdentityComparator {
              * The last possibility is that neither can be converted to a number.
              * So, compare the items directly
              */
-            return a.name.compareTo(b.name)
+            return a.name.compareTo(b.name, ignoreCase = true)
         }
     }
 }

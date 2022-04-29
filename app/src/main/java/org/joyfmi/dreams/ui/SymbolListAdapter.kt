@@ -6,8 +6,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.databinding.SymbolItemBinding
-import org.joyfmi.dreams.repository.Symbol
+import org.joyfmi.dreams.repository.DB_LOCAL
 import org.joyfmi.dreams.repository.SymbolIdentity
 
 class SymbolListAdapter(
@@ -53,6 +54,11 @@ class SymbolListAdapter(
         fun bind(symbolIdentity: SymbolIdentity) {
             Log.d("SymbolViewHolder", "Assigning Values")
             binding.symbolTextView.text = symbolIdentity.name
+            if ( symbolIdentity.local == DB_LOCAL ) {
+                binding.symbolTextView.setTextColor(DreamApplication.localTextColor)
+            } else {
+                binding.symbolTextView.setTextColor(DreamApplication.commonTextColor)
+            }
         }
     }
 }

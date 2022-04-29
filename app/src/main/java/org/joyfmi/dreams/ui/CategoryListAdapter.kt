@@ -5,8 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.repository.CategoryIdentity
 import org.joyfmi.dreams.databinding.CategoryItemBinding
+import org.joyfmi.dreams.repository.DB_LOCAL
 
 class CategoryListAdapter(
     private val onItemClicked: (CategoryIdentity) -> Unit
@@ -48,6 +50,11 @@ class CategoryListAdapter(
     ): RecyclerView.ViewHolder(binding.root) {
         fun bind(categoryIdentity: CategoryIdentity) {
             binding.categoryTextView.text = categoryIdentity.name
+            if ( categoryIdentity.local == DB_LOCAL ) {
+                binding.categoryTextView.setTextColor(DreamApplication.localTextColor)
+            } else {
+                binding.categoryTextView.setTextColor(DreamApplication.commonTextColor)
+            }
         }
     }
 }

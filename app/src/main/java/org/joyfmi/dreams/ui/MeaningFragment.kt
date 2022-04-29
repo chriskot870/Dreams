@@ -1,10 +1,12 @@
 package org.joyfmi.dreams.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.fragment.app.Fragment
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.joyfmi.dreams.DreamApplication
 import org.joyfmi.dreams.databinding.MeaningFragmentBinding
+import org.joyfmi.dreams.repository.DB_LOCAL
 import org.joyfmi.dreams.repository.Symbol
 import org.joyfmi.dreams.repository.SymbolIdentity
 import org.joyfmi.dreams.viewmodels.MeaningViewModel
@@ -62,6 +65,11 @@ class MeaningFragment: Fragment() {
          * Build the list of Meanings
          */
         binding.textMeaningSymbol.text = String.format("Symbol: %s", symbolIdentity.name)
+        if ( symbolIdentity.local == DB_LOCAL ) {
+            binding.textMeaningSymbol.setTextColor(DreamApplication.localTextColor)
+        } else {
+            binding.textMeaningSymbol.setTextColor(DreamApplication.commonTextColor)
+        }
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val meaningAdapter = MeaningListAdapter()

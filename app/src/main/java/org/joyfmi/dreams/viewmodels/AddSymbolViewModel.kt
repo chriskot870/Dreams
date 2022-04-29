@@ -22,6 +22,7 @@ import org.joyfmi.dreams.R
 import org.joyfmi.dreams.database.local.LocalMeaning
 import org.joyfmi.dreams.databinding.AddSymbolFragmentBinding
 import org.joyfmi.dreams.repository.CategoryIdentity
+import org.joyfmi.dreams.repository.DB_LOCAL
 import org.joyfmi.dreams.repository.DreamRepository
 import org.joyfmi.dreams.ui.AddSymbolDialogFragment
 import org.joyfmi.dreams.ui.AddSymbolFragment
@@ -130,7 +131,7 @@ class AddSymbolViewModel (private val repository:DreamRepository): ViewModel() {
         /*
          * The local value is always 1
          */
-        val local = 1
+        val local = DB_LOCAL
 
         /*
          * We have to get the symbols to check if the one entered already exists.
@@ -158,10 +159,13 @@ class AddSymbolViewModel (private val repository:DreamRepository): ViewModel() {
             /*
              * If we get here we have valid info so insert a new record into the Local Database
              */
+            /*
+             * We want symbol Names and Category names to begin with Capital letters
+             */
             val newrecord = LocalMeaning(
                 0,
-                categoryName,
-                symbolName,
+                categoryName.replaceFirstChar { it.uppercase()},
+                symbolName.replaceFirstChar { it.uppercase()},
                 referenceText,
                 contentsText,
                 local

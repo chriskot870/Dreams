@@ -2,12 +2,14 @@ package org.joyfmi.dreams.ui
 
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.joyfmi.dreams.repository.MeaningIdentity
 import org.joyfmi.dreams.databinding.MeaningItemBinding
+import org.joyfmi.dreams.repository.DB_LOCAL
 import org.joyfmi.dreams.repository.Meaning
 
 class MeaningListAdapter(): ListAdapter<Meaning, MeaningListAdapter.MeaningViewHolder>(DiffCallback)  {
@@ -45,6 +47,14 @@ class MeaningListAdapter(): ListAdapter<Meaning, MeaningListAdapter.MeaningViewH
         private var binding: MeaningItemBinding
     ): RecyclerView.ViewHolder(binding.root) {
         fun bind(meaning: Meaning) {
+            /*
+             * Local identities can be edited, but common ones can not be edited.
+             */
+            if ( meaning.identity.local == DB_LOCAL) {
+                binding.meaningEditButton.visibility = View.VISIBLE
+            } else {
+                binding.meaningEditButton.visibility = View.GONE
+            }
             binding.referenceTextView.text = meaning.reference
             binding.contentTextView.text = meaning.contents
         }
